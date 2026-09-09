@@ -14,6 +14,10 @@ class FakeAuthService {
   setState(state: AuthState): void {
     this.stateSignal.set(state);
   }
+
+  resetState(): void {
+    this.stateSignal.set({ status: 'idle' });
+  }
 }
 
 describe('LoginPage', () => {
@@ -62,6 +66,19 @@ describe('LoginPage', () => {
     TestBed.tick();
 
     expect(router.navigateByUrl).toHaveBeenCalledWith('/feed');
+  });
+
+  it('clears a stale error left by a previous attempt on the other auth page', () => {
+    // Simulates arriving at /login right after a failed RegisterPage
+    // attempt: authState is a signal shared by both pages, so without the
+    // constructor's resetState() call this fresh LoginPage instance would
+    // immediately show the previous page's leftover error toast.
+    fakeAuthService.setState({ status: 'error', error: { kind: 'server', message: 'Email already in use.', statusCode: 409 } });
+
+    const freshFixture = TestBed.createComponent(LoginPage);
+    freshFixture.detectChanges();
+
+    expect(freshFixture.componentInstance.toastOpen()).toBeFalse();
   });
 
   it('shows a toast with the error message when signIn fails', () => {

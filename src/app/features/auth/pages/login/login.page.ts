@@ -94,6 +94,12 @@ export class LoginPage {
   readonly toastMessage = signal('');
 
   constructor() {
+    // Clears any error/success left behind by a previous attempt on this
+    // or the other auth page, so the effect below starts reacting from a
+    // known idle state rather than possibly showing a stale toast the
+    // instant this page mounts.
+    this.authService.resetState();
+
     effect(() => {
       const state = this.authService.authState();
       if (state.status === 'error') {
