@@ -822,14 +822,14 @@ User profile view/edit, avatar upload, accessibility pass on the profile pages. 
 
 ### Tasks
 
-- [ ] Create `UsersApiService` (built on `BaseApiService`; `GET /users/:id`, `PATCH /users/me`, `POST /users/me/avatar`)
-- [ ] Create `UsersService` facade exposing a `user` signal loaded via `loadUser(id: string)`; a `network`-kind `AppError` is surfaced like any other error here, not queued or cached
-- [ ] Build `ProfilePage`: avatar, name, the user's posts, with loading/error/data states rendered from the signal; the error state distinguishes "you're offline" from other failures using `AppError.kind`
-- [ ] Build `AvatarPickerComponent` using `@capacitor/camera`, upload via `UsersApiService` (which goes through `BaseApiService`) with progress events
-- [ ] Build `EditProfilePage` pre-filled from the current user; disable submission while `ConnectivityService.isOnline` is `false`, with a message explaining why
-- [ ] Verify the profile pages under a large system text-size setting; fill any ARIA gaps beyond the design system's defaults
-- [ ] Unit test: `UsersService.updateProfile` calls the API service with the correct payload
-- [ ] Component test: `ProfilePage` shows a loading state then the user's data
+- [x] Create `UsersApiService` (built on `BaseApiService`; `GET /users/:id`, `PATCH /users/me`, `POST /users/me/avatar`)
+- [x] Create `UsersService` facade exposing a `user` signal loaded via `loadUser(id: string)`; a `network`-kind `AppError` is surfaced like any other error here, not queued or cached
+- [x] Build `ProfilePage`: avatar, name, the user's posts, with loading/error/data states rendered from the signal; the error state distinguishes "you're offline" from other failures using `AppError.kind`
+- [x] Build `AvatarPickerComponent` using `@capacitor/camera`, upload via `UsersApiService` (which goes through `BaseApiService`) with progress events
+- [x] Build `EditProfilePage` pre-filled from the current user; disable submission while `ConnectivityService.isOnline` is `false`, with a message explaining why
+- [x] Verify the profile pages under a large system text-size setting; fill any ARIA gaps beyond the design system's defaults
+- [x] Unit test: `UsersService.updateProfile` calls the API service with the correct payload
+- [x] Component test: `ProfilePage` shows a loading state then the user's data
 
 ---
 
