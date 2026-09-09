@@ -5,6 +5,7 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
+    "postinstall": "node scripts/set-env.js",
     "prestart": "node scripts/set-env.js",
     "start": "ng serve",
     "prebuild": "node scripts/set-env.js",

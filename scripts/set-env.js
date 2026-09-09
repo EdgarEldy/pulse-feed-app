@@ -1,12 +1,17 @@
 /**
  * Generates src/environments/environment.ts and environment.prod.ts from
- * the repo-root .env file (or defaults, if .env is missing/gitignored).
+ * the repo-root .env file (or defaults, if .env is missing). Both generated
+ * files are gitignored, they are build output, not source, same as .env
+ * itself.
  *
- * This exists so the API base URL lives in one untracked place (.env) instead
- * of being hardcoded in source, without pulling in a dependency like `dotenv`
- * that isn't in README.md's Tech Stack table. It is deliberately a plain
- * CommonJS script with zero npm dependencies, run via the "prestart"/"prebuild"
- * npm lifecycle hooks so it always runs before `ng serve`/`ng build`.
+ * This exists so the API base URL lives in one untracked place (.env)
+ * instead of being hardcoded in source, without pulling in a dependency
+ * like `dotenv` that isn't in README.md's Tech Stack table. It is
+ * deliberately a plain CommonJS script with zero npm dependencies, run via
+ * the "postinstall" hook (so a fresh `npm ci`, e.g. in CI, produces the
+ * files before `ng lint`/`ng test`/`ng build` ever run) and again via
+ * "prestart"/"prebuild" (so editing .env and restarting the dev server
+ * picks up the change without a full reinstall).
  */
 const fs = require('fs');
 const path = require('path');
