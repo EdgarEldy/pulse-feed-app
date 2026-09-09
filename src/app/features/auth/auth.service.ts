@@ -71,6 +71,25 @@ export class AuthService {
   }
 
   /**
+   * Lets another facade (`UsersService`, after a successful `PATCH
+   * /users/me` or avatar upload) patch the signed-in user's own cached
+   * profile without going through a full `signIn`/`refreshSession` cycle.
+   * Only updates the in-memory signal and the same cached copy
+   * `restoreSession()` reads on a future cold start; it never touches the
+   * access/refresh tokens themselves, an edited display name or avatar
+   * does not invalidate a session the way a changed password would.
+   * A no-op if nobody is currently signed in, editing a profile that
+   * does not exist as a session is not a state this app can reach anyway.
+   */
+  async updateCurrentUser(user: User): Promise<void> {
+    if (!this.isAuthenticated()) {
+      return;
+    }
+    this.currentUserSignal.set(user);
+    await this.tokenStorage.setUser(user);
+  }
+
+  /**
    * The memoized in-flight `/auth/refresh` call. `null` whenever no refresh
    * is currently running; set the moment one starts, cleared the moment it
    * finishes (success or failure). See `refreshSession()` for how this
