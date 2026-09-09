@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
+import type { User } from '../../features/users/user.model';
 
 const ACCESS_TOKEN_KEY = 'pulsefeed_access_token';
 const REFRESH_TOKEN_KEY = 'pulsefeed_refresh_token';
+const USER_KEY = 'pulsefeed_current_user';
 
 /**
  * The narrow read/write/clear surface `SecureTokenStorageService` needs from
@@ -139,6 +141,45 @@ export class SecureTokenStorageService {
 
   async setTokens(accessToken: string, refreshToken: string): Promise<void> {
     await Promise.all([this.store.set(ACCESS_TOKEN_KEY, accessToken), this.store.set(REFRESH_TOKEN_KEY, refreshToken)]);
+  }
+
+  /**
+   * There is no `GET /auth/me` in the API Contract, so `AuthService` cannot
+   * re-fetch the signed-in user's profile on app start purely from a stored
+   * token; it needs the `User` object itself to have survived the app
+   * restart alongside the tokens. This is the one extra key this service
+   * persists for that reason: the last `User` returned by `register`/
+   * `login`/`refresh`'s session response, JSON-encoded under its own key in
+   * the same secure store the tokens already live in, so restoring a
+   * session on startup does not require a second, separate storage
+   * mechanism outside this service's "only place allowed to touch the
+   * plugin" role.
+   *
+   * This is deliberately a snapshot, not a live value: it can go stale the
+   * moment something changes the user's profile elsewhere (`feature/users`'
+   * `PATCH /users/me`), and `AuthService` accepts that trade-off, since the
+   * alternative (no restored `currentUser` at all until some other API call
+   * happens to return one) is strictly worse for a route guard deciding
+   * whether to let a returning user straight into the feed.
+   */
+  async getUser(): Promise<User | null> {
+    const raw = await this.store.get(USER_KEY);
+    if (raw === null) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw) as User;
+    } catch {
+      // Corrupted or unexpectedly-shaped JSON is treated the same as "no
+      // cached user" rather than thrown, consistent with how a missing key
+      // is already handled: a stale/garbled cache should never itself
+      // crash session restoration.
+      return null;
+    }
+  }
+
+  async setUser(user: User): Promise<void> {
+    await this.store.set(USER_KEY, JSON.stringify(user));
   }
 
   clear(): Promise<void> {
