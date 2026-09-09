@@ -15,6 +15,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { AppTranslateLoader } from './core/i18n/app-translate-loader';
 import { AuthService } from './features/auth/auth.service';
+import { postHeroTransition } from './features/posts/post-hero-transition.util';
 
 /**
  * Centralizes every top-level provider the app needs to bootstrap: the
@@ -27,7 +28,14 @@ import { AuthService } from './features/auth/auth.service';
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
+    // `navAnimation` is Ionic's one app-wide hook for customizing
+    // `ion-router-outlet`'s page transition (see
+    // `post-hero-transition.util.ts` for exactly what this does and does
+    // not achieve versus a true shared-element transition). It delegates to
+    // the platform's normal iOS/MD transition for every navigation that
+    // isn't a feed-thumbnail-to-post-detail pair, so this is additive, not
+    // a replacement of the app's default navigation feel.
+    provideIonicAngular({ navAnimation: postHeroTransition }),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),
     // Enables the `@angular/animations` DSL (`trigger`/`transition`) used
