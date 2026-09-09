@@ -48,22 +48,8 @@ const DESKTOP_BREAKPOINT_PX = 1024;
   standalone: true,
   imports: [IonGrid, IonRow],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ion-grid>
-      <ion-row class="adaptive-grid__row" [style.--adaptive-grid-columns]="activeColumns()">
-        <ng-content />
-      </ion-row>
-    </ion-grid>
-  `,
-  styles: [
-    `
-      .adaptive-grid__row {
-        display: grid;
-        grid-template-columns: repeat(var(--adaptive-grid-columns, 1), minmax(0, 1fr));
-        gap: var(--app-space-md, 16px);
-      }
-    `,
-  ],
+  templateUrl: './adaptive-grid.component.html',
+  styleUrl: './adaptive-grid.component.scss',
 })
 export class AdaptiveGridComponent implements AfterViewInit {
   private readonly host = inject(ElementRef<HTMLElement>);

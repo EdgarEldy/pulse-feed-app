@@ -19,26 +19,8 @@ import { IonSpinner } from '@ionic/angular/standalone';
   standalone: true,
   imports: [IonSpinner],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div
-      class="loading-indicator"
-      role="status"
-      aria-live="polite"
-      [attr.aria-label]="label || 'Loading'"
-    >
-      <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
-    </div>
-  `,
-  styles: [
-    `
-      .loading-indicator {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: var(--app-space-lg);
-      }
-    `,
-  ],
+  templateUrl: './loading-indicator.component.html',
+  styleUrl: './loading-indicator.component.scss',
 })
 export class LoadingIndicatorComponent {
   @Input() label = '';

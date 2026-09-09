@@ -25,23 +25,7 @@ import { IonCard, IonCardContent, IonCardHeader } from '@ionic/angular/standalon
   standalone: true,
   imports: [IonCard, IonCardHeader, IonCardContent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ion-card class="app-card">
-      <ion-card-header>
-        <ng-content select="[card-header]"></ng-content>
-      </ion-card-header>
-      <ion-card-content>
-        <ng-content></ng-content>
-      </ion-card-content>
-    </ion-card>
-  `,
-  styles: [
-    `
-      .app-card {
-        border-radius: var(--app-radius);
-        margin: var(--app-space-sm) 0;
-      }
-    `,
-  ],
+  templateUrl: './app-card.component.html',
+  styleUrl: './app-card.component.scss',
 })
 export class AppCardComponent {}

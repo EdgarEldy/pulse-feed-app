@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular/standalone';
-import { AppErrorKind } from '../../core/models/app-error';
+import { AppErrorKind } from '../../../core/models/app-error';
 import { ErrorViewComponent } from './error-view.component';
 
 const EXPECTED_MESSAGES: Record<AppErrorKind, string> = {

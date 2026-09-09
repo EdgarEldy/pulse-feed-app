@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { alertCircleOutline, refreshOutline } from 'ionicons/icons';
-import { AppError, AppErrorKind } from '../../core/models/app-error';
+import { AppError, AppErrorKind } from '../../../core/models/app-error';
 
 addIcons({ 'alert-circle-outline': alertCircleOutline, 'refresh-outline': refreshOutline });
 
@@ -38,39 +38,8 @@ const ERROR_MESSAGES: Record<AppErrorKind, string> = {
   standalone: true,
   imports: [IonButton, IonIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="error-view">
-      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-      <p class="error-view__message">{{ message }}</p>
-      <ion-button fill="outline" size="small" (click)="retry.emit()">
-        <ion-icon slot="start" name="refresh-outline" aria-hidden="true"></ion-icon>
-        Try again
-      </ion-button>
-    </div>
-  `,
-  styles: [
-    `
-      .error-view {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: var(--app-space-sm);
-        padding: var(--app-space-lg);
-        text-align: center;
-      }
-
-      .error-view__message {
-        margin: 0;
-        color: var(--ion-color-medium);
-      }
-
-      ion-icon[name='alert-circle-outline'] {
-        font-size: 2rem;
-        color: var(--ion-color-danger);
-      }
-    `,
-  ],
+  templateUrl: './error-view.component.html',
+  styleUrl: './error-view.component.scss',
 })
 export class ErrorViewComponent {
   @Input({ required: true }) error!: AppError;
