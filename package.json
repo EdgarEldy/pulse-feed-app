@@ -1,0 +1,53 @@
+{
+  "name": "pulse-feed-app",
+  "version": "0.0.1",
+  "author": "Ionic Framework",
+  "homepage": "https://ionicframework.com/",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "lint": "ng lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "21.2.22",
+    "@angular/compiler": "21.2.22",
+    "@angular/core": "21.2.22",
+    "@angular/forms": "21.2.22",
+    "@angular/platform-browser": "21.2.22",
+    "@angular/router": "21.2.22",
+    "@capacitor/app": "8.1.1",
+    "@capacitor/core": "8.5.1",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/keyboard": "8.0.5",
+    "@capacitor/status-bar": "8.0.3",
+    "@ionic/angular": "^8.8.19",
+    "ionicons": "^8.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "21.2.23",
+    "@angular/cli": "21.2.23",
+    "@angular/compiler-cli": "21.2.22",
+    "@angular/language-service": "21.2.22",
+    "@capacitor/cli": "8.5.1",
+    "@ionic/angular-toolkit": "^13.0.0",
+    "@types/jasmine": "^6.0.0",
+    "angular-eslint": "21.4.0",
+    "eslint": "^9.16.0",
+    "jasmine-core": "^7.0.2",
+    "jsdom": "^26.0.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.3.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.61.0"
+  },
+  "description": "An Ionic project"
+}
