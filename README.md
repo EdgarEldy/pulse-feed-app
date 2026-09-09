@@ -496,7 +496,7 @@ pulse-feed-app/
 │       │       ├── auth.guard.ts
 │       │       └── auth.guard.spec.ts
 │       ├── shared/
-│       │   ├── components/
+│       │   ├── components/             # new components: one subfolder each, four files (.ts, .html, .scss, .spec.ts)
 │       │   │   ├── loading-indicator.component.ts
 │       │   │   ├── loading-indicator.component.spec.ts
 │       │   │   ├── error-view.component.ts
@@ -505,6 +505,9 @@ pulse-feed-app/
 │       │   │   ├── offline-banner.component.spec.ts
 │       │   │   ├── app-card.component.ts
 │       │   │   └── app-card.component.spec.ts
+│       │   │       # ^ these four predate the per-component-folder convention and stay flat
+│       │   │       #   with an inline template unless a later branch touches them anyway;
+│       │   │       #   every new component from here on follows the subfolder shape above
 │       │   └── theme/
 │       │       └── variables.scss   # colors, spacing, radius, and breakpoint tokens
 │       └── features/
@@ -762,20 +765,20 @@ The local persistence layer and the offline-first strategy every remote-backed f
 
 ### Tasks
 
-- [ ] Design the SQLite schema: `posts_cache`, `comments_cache` tables mirroring the API shape (as `PostRow`/`CommentRow`, including `pendingSync`), plus a `synced_at` column
-- [ ] Create `core/database/app-database.service.ts`: database opening, versioning, migrations via `@capacitor-community/sqlite`
-- [ ] Create `core/database/sqlite-table.ts`: a generic `SqliteTable<T>` class (constructor takes the table name and column list) implementing `getAll`/`upsert`/`upsertAll`/`delete`/`replaceId` (renames a row's primary key, used when a temporary id is reconciled), so no `*LocalService` writes raw SQL
-- [ ] Add `@capacitor/network`, create `ConnectivityService` (`isOnline` computed signal), and wire the `OfflineBannerComponent` built in `feature/design-system` to it
-- [ ] Create `core/offline/offline-first.util.ts`: a `loadOfflineFirst({ remote, cacheRead, cacheWrite })` function every `<Feature>Service.loadX()` calls, so the try-remote/fall-back-to-cache/write-through sequence is written once, not once per feature
-- [ ] Add a `pending_writes` table (`id`, `entity_type`, `operation`, `payload_json`, `temp_id` nullable, `created_at`) to queue mutations made while offline
-- [ ] Create `core/offline/sync.service.ts`: exposes `register<T>(reconciler)` and `enqueue(entityType, operation, payload, tempId?)` (see [Reconciling writes made offline](#reconciling-writes-made-offline)); replays queued writes strictly in order via the reconciler registered for each `entityType`, and stops (leaving the rest queued) on the first failure so writes never apply out of order
-- [ ] Trigger that replay both on every `ConnectivityService.isOnline` transition to `true` and once during app startup: a device can already be online when the app launches with writes still queued from a previous session, and an `effect()` on a signal only fires on a change, not on its initial value
-- [ ] Make the startup replay wait for `AppDatabaseService` to finish opening the database before querying `pending_writes`, rather than assuming a fixed initialization order between the two
-- [ ] Build `PostsLocalService` as the reference `*LocalService`, composed from `SqliteTable<PostRow>`, used as the template `comments` follows later
-- [ ] Unit test: `SqliteTable<T>` insert/read/delete/`replaceId` round-trip against an in-memory/test database
-- [ ] Unit test: `loadOfflineFirst` falls back to `cacheRead` when `remote` errors with a `network`-kind `AppError`, and propagates any other error kind untouched
-- [ ] Unit test: `SyncService` replays a queued write once `ConnectivityService.isOnline` flips to `true`, calls the registered reconciler's `onSynced` for a `create` operation, and leaves the write queued (without retrying out of order) on a repeated failure
-- [ ] Unit test: `SyncService` also replays any queued write during startup when `ConnectivityService.isOnline` is already `true` at that point
+- [x] Design the SQLite schema: `posts_cache`, `comments_cache` tables mirroring the API shape (as `PostRow`/`CommentRow`, including `pendingSync`), plus a `synced_at` column
+- [x] Create `core/database/app-database.service.ts`: database opening, versioning, migrations via `@capacitor-community/sqlite`
+- [x] Create `core/database/sqlite-table.ts`: a generic `SqliteTable<T>` class (constructor takes the table name and column list) implementing `getAll`/`upsert`/`upsertAll`/`delete`/`replaceId` (renames a row's primary key, used when a temporary id is reconciled), so no `*LocalService` writes raw SQL
+- [x] Add `@capacitor/network`, create `ConnectivityService` (`isOnline` computed signal), and wire the `OfflineBannerComponent` built in `feature/design-system` to it
+- [x] Create `core/offline/offline-first.util.ts`: a `loadOfflineFirst({ remote, cacheRead, cacheWrite })` function every `<Feature>Service.loadX()` calls, so the try-remote/fall-back-to-cache/write-through sequence is written once, not once per feature
+- [x] Add a `pending_writes` table (`id`, `entity_type`, `operation`, `payload_json`, `temp_id` nullable, `created_at`) to queue mutations made while offline
+- [x] Create `core/offline/sync.service.ts`: exposes `register<T>(reconciler)` and `enqueue(entityType, operation, payload, tempId?)` (see [Reconciling writes made offline](#reconciling-writes-made-offline)); replays queued writes strictly in order via the reconciler registered for each `entityType`, and stops (leaving the rest queued) on the first failure so writes never apply out of order
+- [x] Trigger that replay both on every `ConnectivityService.isOnline` transition to `true` and once during app startup: a device can already be online when the app launches with writes still queued from a previous session, and an `effect()` on a signal only fires on a change, not on its initial value
+- [x] Make the startup replay wait for `AppDatabaseService` to finish opening the database before querying `pending_writes`, rather than assuming a fixed initialization order between the two
+- [x] Build `PostsLocalService` as the reference `*LocalService`, composed from `SqliteTable<PostRow>`, used as the template `comments` follows later
+- [x] Unit test: `SqliteTable<T>` insert/read/delete/`replaceId` round-trip against an in-memory/test database
+- [x] Unit test: `loadOfflineFirst` falls back to `cacheRead` when `remote` errors with a `network`-kind `AppError`, and propagates any other error kind untouched
+- [x] Unit test: `SyncService` replays a queued write once `ConnectivityService.isOnline` flips to `true`, calls the registered reconciler's `onSynced` for a `create` operation, and leaves the write queued (without retrying out of order) on a repeated failure
+- [x] Unit test: `SyncService` also replays any queued write during startup when `ConnectivityService.isOnline` is already `true` at that point
 
 ---
 
