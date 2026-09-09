@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, inject, signal } from '@angular/core';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, Output, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { IonButton, IonIcon, IonProgressBar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
@@ -44,6 +45,7 @@ type AvatarPickerState = { status: 'idle' } | { status: 'uploading'; progress: n
 })
 export class AvatarPickerComponent {
   private readonly usersService = inject(UsersService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Emitted once, with the server's response, right after a successful upload. */
   @Output() uploaded = new EventEmitter<{ photoUrl: string }>();
@@ -52,18 +54,39 @@ export class AvatarPickerComponent {
   readonly state = this.pickerState.asReadonly();
 
   async pickAndUpload(): Promise<void> {
+    const photo = await this.promptForPhoto();
+    if (!photo) {
+      // The user backed out of the native picker, or denied camera/photo
+      // permission. `Camera.getPhoto` itself is the only step in this flow
+      // Capacitor documents as rejecting for that reason; there is nothing
+      // to upload and nothing worth surfacing as an app error, so this
+      // simply leaves the picker idle.
+      return;
+    }
+
     let file: File;
     try {
-      file = await this.pickPhoto();
-    } catch {
-      // The user backed out of the native picker, or denied camera/photo
-      // permission. There is nothing to upload and nothing worth
-      // surfacing as an app error, so this simply leaves the picker idle.
+      file = await this.toFile(photo);
+    } catch (error) {
+      // Unlike a cancelled picker, a failure past this point (no webPath,
+      // fetch/blob conversion failing) means the user *did* pick something
+      // and it genuinely could not be turned into an uploadable file. That
+      // is a real problem this component's error state exists to surface,
+      // not a silent no-op.
+      this.pickerState.set({
+        status: 'error',
+        error: { kind: 'validation', message: error instanceof Error ? error.message : 'Could not read the picked photo.' },
+      });
       return;
     }
 
     this.pickerState.set({ status: 'uploading', progress: 0 });
-    this.usersService.uploadAvatar(file).subscribe({
+    // Without this, navigating away (or EditProfilePage being destroyed)
+    // before the upload finishes would leave this subscription running in
+    // the background; its callback would still fire on an already-
+    // destroyed component instance, emitting `uploaded` and triggering
+    // whatever side effects a parent hooked to it after the user has left.
+    this.usersService.uploadAvatar(file).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (event) => {
         // `UploadEvent<T>` is `{ progress: number } | { progress: 100; result: T }`.
         // Checking for the `result` property (rather than `progress === 100`)
@@ -81,20 +104,36 @@ export class AvatarPickerComponent {
   }
 
   /**
-   * `CameraResultType.Uri` returns a `webPath`: a path Capacitor makes
-   * readable the same way on the web build and inside the native WebView,
-   * which `fetch` can turn into a `Blob`, and from there into the `File`
-   * `UsersApiService.uploadAvatar` builds its multipart body from.
-   * `CameraSource.Prompt` is what makes this a single entry point that
-   * asks the user to choose between the camera and their photo gallery,
-   * rather than this component committing to one or the other upfront.
+   * `CameraSource.Prompt` is what makes this a single entry point that asks
+   * the user to choose between the camera and their photo gallery, rather
+   * than this component committing to one or the other upfront. Capacitor's
+   * documented behavior is that this call *rejects* when the user cancels
+   * out of that prompt or denies permission, with no separate resolved
+   * "nothing picked" value, so that is the one call in this whole flow
+   * whose rejection this component treats as a non-error, returning `null`
+   * instead of throwing.
    */
-  private async pickPhoto(): Promise<File> {
-    const photo = await Camera.getPhoto({
-      resultType: CameraResultType.Uri,
-      source: CameraSource.Prompt,
-      quality: 80,
-    });
+  private async promptForPhoto(): Promise<Photo | null> {
+    try {
+      return await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Prompt,
+        quality: 80,
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * `webPath` is a path Capacitor makes readable the same way on the web
+   * build and inside the native WebView, which `fetch` can turn into a
+   * `Blob`, and from there into the `File` `UsersApiService.uploadAvatar`
+   * builds its multipart body from. Every rejection here is a genuine
+   * failure, unlike `promptForPhoto()`'s cancellation case, so this lets
+   * them propagate rather than swallowing them.
+   */
+  private async toFile(photo: Photo): Promise<File> {
     if (!photo.webPath) {
       throw new Error('Camera did not return a usable image path.');
     }
