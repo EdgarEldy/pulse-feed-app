@@ -173,6 +173,27 @@ describe('AuthService', () => {
     });
   });
 
+  describe('updateCurrentUser', () => {
+    it('updates currentUser and persists it via storage when a session is active', async () => {
+      await fakeTokenStorage.setTokens('access-1', 'refresh-1');
+      await fakeTokenStorage.setUser(sampleUser);
+      await service.restoreSession();
+
+      const updatedUser: User = { ...sampleUser, displayName: 'Ada L.' };
+      await service.updateCurrentUser(updatedUser);
+
+      expect(service.currentUser()).toEqual(updatedUser);
+      expect(await fakeTokenStorage.getUser()).toEqual(updatedUser);
+    });
+
+    it('does nothing when nobody is currently signed in', async () => {
+      await service.updateCurrentUser(sampleUser);
+
+      expect(service.currentUser()).toBeNull();
+      expect(await fakeTokenStorage.getUser()).toBeNull();
+    });
+  });
+
   describe('signOut', () => {
     it('clears the session locally after a successful logout call', async () => {
       await fakeTokenStorage.setTokens('access-1', 'refresh-1');
