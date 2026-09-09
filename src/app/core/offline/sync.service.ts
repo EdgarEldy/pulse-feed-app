@@ -218,15 +218,38 @@ export class SyncService {
           continue;
         }
 
+        let synced: unknown;
         try {
           const payload: unknown = JSON.parse(row.payload_json);
-          const synced = await this.replayOnce(reconciler, payload);
-          if (row.temp_id !== null) {
-            await reconciler.onSynced(row.temp_id, synced);
-          }
-          await executor.run(`DELETE FROM pending_writes WHERE id = ?;`, [row.id]);
+          synced = await this.replayOnce(reconciler, payload);
         } catch {
+          // The write itself never reached the server, most commonly
+          // because the device dropped offline again mid-replay. The row
+          // stays queued, and so does everything after it.
           return;
+        }
+
+        // The write has now reached the server: whatever happens next,
+        // the row's actual job is done, so it comes off the queue here,
+        // before onSynced runs, not after. onSynced only replaces a
+        // temporary id in the local cache and UI state; if that step
+        // itself throws (a transient SQLite error, say), the row must
+        // not stay queued, replaying it again would re-issue the same
+        // create/update/delete against the API a second time and, for a
+        // create, produce a duplicate resource server-side.
+        await executor.run(`DELETE FROM pending_writes WHERE id = ?;`, [row.id]);
+
+        if (row.temp_id !== null) {
+          try {
+            await reconciler.onSynced(row.temp_id, synced);
+          } catch {
+            // Local reconciliation failed after a successful server
+            // write. There is nothing left to retry here (the row is
+            // already gone), so this pass simply moves on to the next
+            // row rather than aborting the rest of the queue over a
+            // problem that is now purely local.
+            continue;
+          }
         }
       }
     } finally {
