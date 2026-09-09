@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @let profileState = user();
+
+  @if (profileState.status === 'loading' || profileState.status === 'idle') {
+    <app-loading-indicator label="Loading profile" />
+  } @else if (profileState.status === 'error') {
+    <app-error-view [error]="profileState.error" (retry)="onRetry()" />
+  } @else if (profileState.status === 'success') {
+    <div class="profile">
+      <div class="profile__avatar">
+        @if (profileState.data.photoUrl) {
+          <img
+            [src]="profileState.data.photoUrl"
+            [alt]="profileState.data.displayName + '\'s avatar'"
+            class="profile__avatar-img"
+          />
+        } @else {
+          <ion-icon
+            name="person-circle-outline"
+            class="profile__avatar-placeholder"
+            role="img"
+            [attr.aria-label]="profileState.data.displayName + '\'s avatar'"
+          ></ion-icon>
+        }
+      </div>
+
+      <h1 class="profile__name">{{ profileState.data.displayName }}</h1>
+
+      <section class="profile__posts" aria-label="Posts">
+        <h2>Posts</h2>
+        <p class="profile__posts-placeholder">Posts coming soon.</p>
+      </section>
+    </div>
+  }
+</ion-content>
