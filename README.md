@@ -731,13 +731,13 @@ Theming, layout primitives, and the reusable components every later branch will 
 
 ### Tasks
 
-- [ ] Customize `variables.scss` (Ionic CSS custom properties) for the app's color palette, light and dark mode via `prefers-color-scheme`
-- [ ] Define spacing, radius, and breakpoint tokens as SCSS variables in `variables.scss` to avoid magic numbers
-- [ ] Build a responsive layout primitive (an `AdaptiveGridComponent` using `ion-grid` that switches column count on tablet width via `ResizeObserver`), reused later by the post feed
-- [ ] Build shared components: `LoadingIndicatorComponent`, `ErrorViewComponent` (takes an `AppError` and renders a message per `kind`), `OfflineBannerComponent` (wired to real connectivity state in `feature/offline-and-sync`), `AppCardComponent`
-- [ ] Establish the ARIA labeling convention for icon-only buttons, applied to every shared component from the start
-- [ ] Scaffold `assets/i18n/en.json`, `assets/i18n/fr.json`, wire `@ngx-translate/core` (empty/base strings only; features extract their own strings as they are built)
-- [ ] Component test: `AdaptiveGridComponent` renders one column under a mobile width and multiple above a tablet breakpoint
+- [x] Customize `variables.scss` (Ionic CSS custom properties) for the app's color palette, light and dark mode via `prefers-color-scheme`
+- [x] Define spacing, radius, and breakpoint tokens as SCSS variables in `variables.scss` to avoid magic numbers
+- [x] Build a responsive layout primitive (an `AdaptiveGridComponent` using `ion-grid` that switches column count on tablet width via `ResizeObserver`), reused later by the post feed
+- [x] Build shared components: `LoadingIndicatorComponent`, `ErrorViewComponent` (takes an `AppError` and renders a message per `kind`), `OfflineBannerComponent` (wired to real connectivity state in `feature/offline-and-sync`), `AppCardComponent`
+- [x] Establish the ARIA labeling convention for icon-only buttons, applied to every shared component from the start
+- [x] Scaffold `assets/i18n/en.json`, `assets/i18n/fr.json`, wire `@ngx-translate/core` (empty/base strings only; features extract their own strings as they are built)
+- [x] Component test: `AdaptiveGridComponent` renders one column under a mobile width and multiple above a tablet breakpoint
 
 ---
 
