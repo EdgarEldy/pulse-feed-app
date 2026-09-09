@@ -21,7 +21,13 @@ import { Network } from '@capacitor/network';
 @Injectable({ providedIn: 'root' })
 export class ConnectivityService {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly online = signal(true);
+  // `Network.getStatus()` is async, so this needs some initial value before
+  // it resolves. `navigator.onLine` is synchronous and available immediately
+  // (including inside a native app's webview), so it is a better first guess
+  // than optimistically assuming `true`: it narrows, though does not fully
+  // close, the brief window where code reading `isOnline()` very early (for
+  // instance `SyncService`'s startup replay) could act on a stale value.
+  private readonly online = signal(navigator.onLine);
 
   /** Readable signal, `true` while the device currently has a connection. */
   readonly isOnline: Signal<boolean> = this.online.asReadonly();
