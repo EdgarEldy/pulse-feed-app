@@ -56,6 +56,21 @@ export class AuthService {
   readonly authState: Signal<AuthState> = this.state.asReadonly();
 
   /**
+   * `authState` is one signal shared by `LoginPage` and `RegisterPage`
+   * alike (there is exactly one `AuthService` instance, `providedIn:
+   * 'root'`). Without this, navigating from a failed registration straight
+   * to the login screen (or back) would show the *other* page's stale
+   * error toast the instant the new page mounts, since its constructor
+   * `effect()` reacts to whatever `authState` already holds. Each page
+   * calls this once, before registering that effect, so it always starts
+   * from a clean `idle` state regardless of what the previous page left
+   * behind.
+   */
+  resetState(): void {
+    this.state.set({ status: 'idle' });
+  }
+
+  /**
    * The memoized in-flight `/auth/refresh` call. `null` whenever no refresh
    * is currently running; set the moment one starts, cleared the moment it
    * finishes (success or failure). See `refreshSession()` for how this
@@ -90,25 +105,44 @@ export class AuthService {
   }
 
   /**
+   * Guards against running this more than once concurrently. Several
+   * requests can hit `401` around the same moment against an already-
+   * expired refresh token; `refreshSession()`'s shared `Observable` fails
+   * only once, but RxJS still replays that one failure to every one of
+   * `authInterceptor`'s subscribers, so without this flag each of them
+   * would independently call `signOut()`, each reading the same
+   * still-present refresh token and each firing its own `POST /auth/logout`
+   * before the first call's `tokenStorage.clear()` even completes.
+   */
+  private signingOut = false;
+
+  /**
    * Signs the user out locally regardless of whether the `POST
-   * /auth/logout` call itself succeeds: the whole point of signing out is
-   * that the app should no longer act as this user, and there is nothing
-   * the caller can do about a failed logout request except still clear the
-   * local session, so a `network`-kind failure here is swallowed rather
-   * than surfaced through `authState`. The server-side session (and the
-   * refresh token's validity) may briefly outlive the local one if the
-   * request never reaches the backend, but that is a backend-side cleanup
-   * concern, not something this client can fix by retrying or queuing.
+   * /auth/logout` call, or even `tokenStorage.clear()` itself, succeeds:
+   * the whole point of signing out is that the app should no longer act as
+   * this user, and there is nothing the caller can do about either call
+   * failing except still clear the local session, so a failure at either
+   * step is swallowed rather than surfaced through `authState`. The
+   * server-side session (and the refresh token's validity) may briefly
+   * outlive the local one if the logout request never reaches the backend,
+   * but that is a backend-side cleanup concern, not something this client
+   * can fix by retrying or queuing.
    */
   signOut(): void {
+    if (this.signingOut) {
+      return;
+    }
+    this.signingOut = true;
+
     from(this.tokenStorage.getRefreshToken())
       .pipe(
         switchMap((refreshToken) => (refreshToken ? this.api.logout(refreshToken).pipe(catchError(() => of(undefined))) : of(undefined))),
-        switchMap(() => from(this.tokenStorage.clear())),
+        switchMap(() => from(this.tokenStorage.clear()).pipe(catchError(() => of(undefined)))),
       )
       .subscribe(() => {
         this.currentUserSignal.set(null);
         this.state.set({ status: 'idle' });
+        this.signingOut = false;
       });
   }
 
@@ -131,9 +165,9 @@ export class AuthService {
    *
    * "Valid access token" here means "present in storage", not "not yet
    * expired": actually decoding a JWT's expiry client-side would need a
-   * decoding step this app has no dependency for, and is unnecessary besides
-   * — `authInterceptor` already handles an access token that turns out to be
-   * expired transparently (silent refresh, then retry) the moment the
+   * decoding step this app has no dependency for, and is unnecessary anyway,
+   * since `authInterceptor` already handles an access token that turns out
+   * to be expired transparently (silent refresh, then retry) the moment the
    * restored session's first authenticated request goes out. Restoration at
    * startup only has to answer "was there a session at all", not "is it
    * still fresh".
@@ -145,18 +179,28 @@ export class AuthService {
    * user who was never signed in.
    */
   async restoreSession(): Promise<void> {
-    const accessToken = await this.tokenStorage.getAccessToken();
-    if (!accessToken) {
-      return;
-    }
+    try {
+      const accessToken = await this.tokenStorage.getAccessToken();
+      if (!accessToken) {
+        return;
+      }
 
-    const user = await this.tokenStorage.getUser();
-    if (!user) {
-      await this.tokenStorage.clear();
-      return;
-    }
+      const user = await this.tokenStorage.getUser();
+      if (!user) {
+        await this.tokenStorage.clear();
+        return;
+      }
 
-    this.currentUserSignal.set(user);
+      this.currentUserSignal.set(user);
+    } catch {
+      // This runs inside app.config.ts's provideAppInitializer, which
+      // blocks the app's first render until the returned promise settles.
+      // A rejected storage read (IndexedDbTokenStore.openDb() can reject on
+      // the web build, e.g. Safari private browsing) must not become a
+      // rejected initializer, that would leave the app stuck on a blank
+      // screen forever instead of just failing to restore a session; the
+      // safe fallback is the same as "no session was ever there".
+    }
   }
 
   /**
