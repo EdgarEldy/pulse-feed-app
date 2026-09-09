@@ -747,12 +747,12 @@ TypeScript types shared across features, and the DTO mapping helpers each featur
 
 ### Tasks
 
-- [ ] Create `User`, `Post`, `Comment`, `Like` types (plain TypeScript interfaces, one file per feature, no Angular/HttpClient/Capacitor import)
-- [ ] Create `PostRow`/`CommentRow` types (the corresponding API type plus a local-only `pendingSync: boolean` field, see [Domain Model](#domain-model)); these are the types `SqliteTable<T>` and every `*LocalService` are parameterized with
-- [ ] Create matching DTO types and mapping functions to/from the [API Contract](#api-contract) shape, plus a `zod` schema per DTO; each `*ApiService` method passes its schema into the corresponding `BaseApiService` call instead of validating the response itself
-- [ ] Confirm `AppError` (from `feature/core-architecture`) covers every failure mode the API Contract can produce
-- [ ] Unit test: DTO-to-model mapping round-trip against a sample API payload, including a `zod` validation failure case
-- [ ] Unit test: mapping from `PostRow`/`CommentRow` back to the API's `Post`/`Comment` shape strips `pendingSync` and never sends it to `PostsApiService`/`CommentsApiService`
+- [x] Create `User`, `Post`, `Comment`, `Like` types (plain TypeScript interfaces, one file per feature, no Angular/HttpClient/Capacitor import)
+- [x] Create `PostRow`/`CommentRow` types (the corresponding API type plus a local-only `pendingSync: boolean` field, see [Domain Model](#domain-model)); these are the types `SqliteTable<T>` and every `*LocalService` are parameterized with
+- [x] Create matching DTO types and mapping functions to/from the [API Contract](#api-contract) shape, plus a `zod` schema per DTO; each `*ApiService` method passes its schema into the corresponding `BaseApiService` call instead of validating the response itself
+- [x] Confirm `AppError` (from `feature/core-architecture`) covers every failure mode the API Contract can produce
+- [x] Unit test: DTO-to-model mapping round-trip against a sample API payload, including a `zod` validation failure case
+- [x] Unit test: mapping from `PostRow`/`CommentRow` back to the API's `Post`/`Comment` shape strips `pendingSync` and never sends it to `PostsApiService`/`CommentsApiService`
 
 ---
 
