@@ -1,0 +1,59 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Sign in</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input type="email" formControlName="email" autocomplete="email" inputmode="email"></ion-input>
+    </ion-item>
+    @if (emailControl.invalid && (emailControl.touched || submitted())) {
+      <p class="field-error" role="alert">
+        @if (emailControl.hasError('required')) {
+          Email is required.
+        } @else if (emailControl.hasError('email')) {
+          Enter a valid email address.
+        }
+      </p>
+    }
+
+    <ion-item>
+      <ion-label position="stacked">Password</ion-label>
+      <ion-input type="password" formControlName="password" autocomplete="current-password"></ion-input>
+    </ion-item>
+    @if (passwordControl.invalid && (passwordControl.touched || submitted())) {
+      <p class="field-error" role="alert">
+        @if (passwordControl.hasError('required')) {
+          Password is required.
+        } @else if (passwordControl.hasError('minlength')) {
+          Password must be at least 8 characters.
+        }
+      </p>
+    }
+
+    @if (submitted() && form.invalid) {
+      <p class="form-error" role="alert">Please fix the highlighted fields before continuing.</p>
+    }
+
+    <ion-button expand="block" type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Signing in…' : 'Sign in' }}
+    </ion-button>
+  </form>
+
+  <p class="auth-switch">
+    Don't have an account?
+    <a routerLink="/login/register">Create one</a>
+  </p>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMessage()"
+    color="danger"
+    [duration]="4000"
+    position="top"
+    (didDismiss)="onToastDismiss()"
+  ></ion-toast>
+</ion-content>
