@@ -28,6 +28,10 @@ class FakeAuthenticatedAuthService {
   isAuthenticated(): boolean {
     return true;
   }
+
+  resetState(): void {
+    this.stateSignal.set({ status: 'idle' });
+  }
 }
 
 describe('AppComponent', () => {
@@ -68,6 +72,10 @@ describe('AppComponent (unauthenticated)', () => {
 
     isAuthenticated(): boolean {
       return false;
+    }
+
+    resetState(): void {
+      this.stateSignal.set({ status: 'idle' });
     }
   }
 
