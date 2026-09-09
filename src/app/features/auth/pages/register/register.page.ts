@@ -81,6 +81,11 @@ export class RegisterPage {
   readonly toastMessage = signal('');
 
   constructor() {
+    // See LoginPage's constructor comment: clears any state left behind by
+    // a previous attempt on either auth page before this page's own effect
+    // starts reacting to it.
+    this.authService.resetState();
+
     effect(() => {
       const state = this.authService.authState();
       if (state.status === 'error') {

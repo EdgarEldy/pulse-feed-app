@@ -14,6 +14,10 @@ class FakeAuthService {
   setState(state: AuthState): void {
     this.stateSignal.set(state);
   }
+
+  resetState(): void {
+    this.stateSignal.set({ status: 'idle' });
+  }
 }
 
 describe('RegisterPage', () => {
