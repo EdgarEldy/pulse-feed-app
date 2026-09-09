@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/feed"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Post</ion-title>
+    @if (canManage()) {
+      <ion-buttons slot="end">
+        <!-- No EditPostPage exists on this branch yet; see onEdit()'s doc comment. -->
+        <ion-button aria-label="Edit post" (click)="onEdit()">
+          <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" aria-label="Delete post" (click)="onDelete()">
+          <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @let detail = postDetail();
+
+  @if (detail.status === 'loading' || detail.status === 'idle') {
+    <app-loading-indicator label="Loading post" />
+  } @else if (detail.status === 'error') {
+    <app-error-view [error]="detail.error" (retry)="onRetry()" />
+  } @else if (detail.status === 'success') {
+    <article class="post-detail">
+      <header class="post-detail__author">
+        <img
+          class="post-detail__avatar"
+          [appCachedImage]="detail.data.authorPhotoUrl"
+          [alt]="detail.data.authorName + '\'s avatar'"
+          width="48"
+          height="48"
+        />
+        <div class="post-detail__author-meta">
+          <span class="post-detail__author-name">{{ detail.data.authorName }}</span>
+          <span class="post-detail__date">{{ detail.data.createdAt | date: 'medium' }}</span>
+        </div>
+      </header>
+
+      <h1 class="post-detail__title">{{ detail.data.title }}</h1>
+
+      @if (detail.data.imageUrl; as imageUrl) {
+        <img
+          class="post-detail__image"
+          [appCachedImage]="imageUrl"
+          [alt]="detail.data.title"
+          [attr.data-post-hero]="postHeroId(detail.data.id)"
+        />
+      }
+
+      <p class="post-detail__content">{{ detail.data.content }}</p>
+
+      <div class="post-detail__stats">
+        <span class="post-detail__stat">
+          <ion-icon name="chatbubble-outline" aria-hidden="true"></ion-icon>
+          {{ detail.data.commentsCount }}
+        </span>
+        <!--
+          A plain, inert count rather than a tappable heart: LikeButtonComponent
+          (feature/likes, a later branch) is what actually toggles a like.
+          Rendering a fake interactive control here would have to be thrown
+          away the moment that branch lands; a static count does not.
+        -->
+        <span class="post-detail__stat">
+          <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
+          {{ detail.data.likesCount }}
+        </span>
+      </div>
+
+      <section class="post-detail__comments" aria-label="Comments">
+        <h2>Comments</h2>
+        <p class="post-detail__placeholder">Comments coming soon.</p>
+      </section>
+    </article>
+  }
+</ion-content>
