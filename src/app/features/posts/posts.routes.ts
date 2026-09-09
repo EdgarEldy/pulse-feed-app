@@ -11,7 +11,7 @@ export const POSTS_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('../../shared/components/placeholder-page.component').then(
+      import('../../shared/components/placeholder-page/placeholder-page.component').then(
         (m) => m.PlaceholderPageComponent,
       ),
     data: { label: 'Feed' },
@@ -19,7 +19,7 @@ export const POSTS_ROUTES: Routes = [
   {
     path: ':id',
     loadComponent: () =>
-      import('../../shared/components/placeholder-page.component').then(
+      import('../../shared/components/placeholder-page/placeholder-page.component').then(
         (m) => m.PlaceholderPageComponent,
       ),
     data: { label: 'Post detail' },
