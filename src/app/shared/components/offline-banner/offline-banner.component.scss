@@ -1,0 +1,13 @@
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-sm);
+  padding: var(--app-space-sm) var(--app-space-md);
+  background: var(--ion-color-warning);
+  color: var(--ion-color-warning-contrast);
+  border-radius: var(--app-radius);
+}
+
+.offline-banner__text {
+  flex: 1;
+}
