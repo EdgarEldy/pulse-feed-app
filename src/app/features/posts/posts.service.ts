@@ -13,12 +13,19 @@ import { Post, PostRow } from './post.model';
  * Handling section establishes, `nextCursor` included directly since the
  * feed's pagination is exactly what `FeedPage` needs from this state and
  * nothing it has to derive separately.
+ *
+ * `data` is typed `PostRow[]`, not `Post[]`: `PostCardComponent` needs
+ * `pendingSync` to decide whether to show a pending indicator and hide
+ * edit/delete, and every place below that writes into this signal already
+ * stamps `pendingSync` onto whatever it got back, whether that came from
+ * the server (always `false`, a freshly-fetched post is never pending) or
+ * from `posts_cache` (whatever was actually stored there).
  */
 export type PostsState =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'error'; error: AppError }
-  | { status: 'success'; data: Post[]; nextCursor: string | null };
+  | { status: 'success'; data: PostRow[]; nextCursor: string | null };
 
 /**
  * A single post's own loading/error/data lifecycle, kept separate from
@@ -29,12 +36,29 @@ export type PostsState =
  * directly, so `PostDetailPage` can render loading/error/data states from a
  * signal exactly like `FeedPage` does, instead of one page in this feature
  * subscribing to a raw stream and the other reading a signal.
+ * `data` is `PostRow`, for the same reason `PostsState.data` above is:
+ * `PostDetailPage`'s edit/delete gate needs `pendingSync`, not just `Post`.
  */
+/**
+ * `loadOfflineFirst`'s `remote`/`cacheRead` branches return differently
+ * shaped data even though they are typed together as `Post`: a cache read
+ * goes through `PostsLocalService.getAll()`, which genuinely returns
+ * `PostRow[]` (structurally assignable to `Post[]`, so TypeScript does not
+ * complain, but the `pendingSync` field really is there at runtime), while
+ * a remote read has no `pendingSync` at all. This normalizes either shape
+ * into a real `PostRow`, defaulting `pendingSync` to `false` only when it
+ * is genuinely absent (a remote-sourced post), never overwriting a `true`
+ * a cache-sourced row actually has.
+ */
+function toPostRow(post: Post | PostRow): PostRow {
+  return { ...post, pendingSync: 'pendingSync' in post ? post.pendingSync : false };
+}
+
 export type PostDetailState =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'error'; error: AppError }
-  | { status: 'success'; data: Post };
+  | { status: 'success'; data: PostRow };
 
 /**
  * Facade for `features/posts`. `FeedPage`, `PostDetailPage`,
@@ -122,7 +146,9 @@ export class PostsService {
       cacheWrite: (page) => this.local.upsertAll(page.items.map((post) => ({ ...post, pendingSync: false }))),
     }).subscribe((result) => {
       this.state.set(
-        result.status === 'error' ? result : { status: 'success', data: result.data.items, nextCursor: result.data.nextCursor },
+        result.status === 'error'
+          ? result
+          : { status: 'success', data: result.data.items.map(toPostRow), nextCursor: result.data.nextCursor },
       );
     });
   }
@@ -134,7 +160,7 @@ export class PostsService {
     }
     this.api.getPosts(current.nextCursor).subscribe({
       next: (page) => {
-        this.state.set({ status: 'success', data: [...current.data, ...page.items], nextCursor: page.nextCursor });
+        this.state.set({ status: 'success', data: [...current.data, ...page.items.map(toPostRow)], nextCursor: page.nextCursor });
         void this.local.upsertAll(page.items.map((post) => ({ ...post, pendingSync: false })));
       },
       error: (error: AppError) => this.state.set({ status: 'error', error }),
@@ -164,7 +190,7 @@ export class PostsService {
       },
       cacheWrite: (post) => this.local.upsert({ ...post, pendingSync: false }),
     }).subscribe((result) => {
-      this.detailState.set(result.status === 'error' ? result : { status: 'success', data: result.data });
+      this.detailState.set(result.status === 'error' ? result : { status: 'success', data: toPostRow(result.data) });
     });
   }
 
@@ -275,14 +301,14 @@ export class PostsService {
     });
   }
 
-  private applyOptimistic(id: string, update: (post: Post) => Post): void {
+  private applyOptimistic(id: string, update: (post: PostRow) => PostRow): void {
     this.state.update((s) => (s.status === 'success' ? { ...s, data: s.data.map((post) => (post.id === id ? update(post) : post)) } : s));
     void this.local.getAll().then((rows) => {
       const existing = rows.find((row) => row.id === id);
       if (!existing) {
         return;
       }
-      void this.local.upsert(update(existing) as PostRow);
+      void this.local.upsert(update(existing));
     });
   }
 }
