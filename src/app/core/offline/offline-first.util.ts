@@ -21,7 +21,16 @@ export function loadOfflineFirst<T>(options: {
 }): Observable<OfflineFirstResult<T>> {
   return options.remote().pipe(
     switchMap((data) =>
-      from(Promise.resolve(options.cacheWrite(data))).pipe(map(() => ({ status: 'success', data }) as const)),
+      from(Promise.resolve(options.cacheWrite(data))).pipe(
+        map(() => ({ status: 'success', data }) as const),
+        // A fresh response already arrived; whether it also got cached
+        // for later offline use is a separate concern from whether this
+        // call succeeds. Letting a write-through failure fall into the
+        // catchError below (which assumes it only ever sees an AppError
+        // from remote()) would report a cache problem as if remote() had
+        // itself failed, discarding data that was actually fetched fine.
+        catchError(() => of({ status: 'success', data }) as Observable<OfflineFirstResult<T>>),
+      ),
     ),
     catchError((error: AppError) => {
       // Only a network failure means "we simply couldn't reach the
