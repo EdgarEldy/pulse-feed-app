@@ -7,6 +7,7 @@ import {
   PreloadAllModules,
 } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
 
@@ -29,6 +30,12 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),
+    // Enables the `@angular/animations` DSL (`trigger`/`transition`) used
+    // by, among others, `PostCardComponent`'s entry animation. The async
+    // variant loads the animation renderer lazily on first use instead of
+    // bundling it into the initial chunk, which is why this is
+    // `provideAnimationsAsync()` rather than the eager `provideAnimations()`.
+    provideAnimationsAsync(),
     // `provideTranslateService` requires `provideHttpClient` above to already
     // be registered, since `AppTranslateLoader` injects `HttpClient` to fetch
     // `assets/i18n/<lang>.json`. English is both the starting language and
