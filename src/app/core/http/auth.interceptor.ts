@@ -1,9 +1,26 @@
 import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, catchError, from, switchMap, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../features/auth/auth.service';
 import { SecureTokenStorageService } from '../storage/secure-token-storage.service';
 import { apiEndpoints } from './api-endpoints';
+
+/**
+ * This interceptor is registered globally (`app.config.ts`'s
+ * `provideHttpClient(withInterceptors([authInterceptor]))` applies to every
+ * `HttpClient` call in the app, not just calls to PulseFeed's own backend.
+ * `AppTranslateLoader` (`core/i18n/app-translate-loader.ts`), for instance,
+ * fetches bundled i18n JSON assets over the same `HttpClient`. Without this
+ * check, that unrelated request would get the access token attached and
+ * would enter the refresh/retry/sign-out flow on an unexpected error, and
+ * any future call to a third-party or cross-origin URL would silently leak
+ * the bearer token to it. Everything below only ever runs for a request
+ * whose URL actually targets this app's own API.
+ */
+function isApiRequest(url: string): boolean {
+  return url.startsWith(environment.apiBaseUrl);
+}
 
 /**
  * Requests that must go out without an `Authorization` header, and must
@@ -61,6 +78,10 @@ function withAuthorization(req: HttpRequest<unknown>, accessToken: string | null
  * refresh is even shared to behave correctly, it just calls the method.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next): Observable<HttpEvent<unknown>> => {
+  if (!isApiRequest(req.url)) {
+    return next(req);
+  }
+
   const tokenStorage = inject(SecureTokenStorageService);
   const authService = inject(AuthService);
 
