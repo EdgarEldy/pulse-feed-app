@@ -23,15 +23,26 @@
   <p class="post-card__content">{{ post().content }}</p>
 
   @if (post().imageUrl; as imageUrl) {
-    <img class="post-card__image" [appCachedImage]="imageUrl" [alt]="post().title" />
+    <img
+      class="post-card__image"
+      [appCachedImage]="imageUrl"
+      [alt]="post().title"
+      [attr.data-post-hero]="postHeroId(post().id)"
+    />
   }
 
   @if (canManage()) {
     <div class="post-card__actions">
-      <ion-button fill="clear" size="small" aria-label="Edit post" (click)="onEdit()">
+      <ion-button fill="clear" size="small" aria-label="Edit post" (click)="onEdit(); $event.stopPropagation()">
         <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
       </ion-button>
-      <ion-button fill="clear" size="small" color="danger" aria-label="Delete post" (click)="onDelete()">
+      <ion-button
+        fill="clear"
+        size="small"
+        color="danger"
+        aria-label="Delete post"
+        (click)="onDelete(); $event.stopPropagation()"
+      >
         <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
       </ion-button>
     </div>

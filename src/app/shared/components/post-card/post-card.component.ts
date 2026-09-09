@@ -5,6 +5,7 @@ import { IonBadge, IonButton, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { createOutline, syncOutline, trashOutline } from 'ionicons/icons';
 import { PostRow } from '../../../features/posts/post.model';
+import { postHeroId } from '../../../features/posts/post-hero-transition.util';
 import { CachedImageDirective } from '../../directives/cached-image.directive';
 import { AppCardComponent } from '../app-card/app-card.component';
 
@@ -48,6 +49,16 @@ const postCardEnterAnimation: AnimationTriggerMetadata = trigger('postCardEnter'
 })
 export class PostCardComponent {
   readonly post = input.required<PostRow>();
+
+  /**
+   * Bound to `.post-card__image` in the template as `[attr.data-post-hero]`.
+   * `PostDetailPage`'s own post image carries the same attribute, keyed the
+   * same way; `postHeroTransition` (`features/posts/post-hero-transition.util.ts`)
+   * looks for a matching pair of these across a navigation to know when to
+   * run the feed-thumbnail-to-detail-image hero animation instead of the
+   * platform's default page transition.
+   */
+  protected readonly postHeroId = postHeroId;
 
   /**
    * Whether the signed-in user authored this post. Purely informational
