@@ -1,0 +1,11 @@
+.field-error,
+.form-error {
+  margin: 0 0 var(--app-space-sm) var(--app-space-md);
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+}
+
+.auth-switch {
+  margin-top: var(--app-space-lg);
+  text-align: center;
+}

@@ -795,17 +795,17 @@ Registration, login, logout, JWT/refresh token lifecycle, secure storage, route 
 
 ### Tasks
 
-- [ ] Create `SecureTokenStorageService` (`capacitor-secure-storage-plugin`) for access/refresh tokens
-- [ ] Create `authInterceptor` (functional `HttpInterceptorFn`): attaches `Authorization: Bearer <token>`, catches `401`, calls `/auth/refresh`, retries once, signs out on failure
-- [ ] Guard against concurrent refresh calls: if several requests hit `401` around the same time, only the first triggers `/auth/refresh`; the rest wait on that same in-flight `Observable` (shared via a `shareReplay(1)` held in `AuthService`) and retry once it resolves, instead of each firing its own refresh call
-- [ ] Create `AuthApiService` wrapping `HttpClient` calls to `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`
-- [ ] Create `AuthService` facade with a `currentUser` signal and an `isAuthenticated` computed signal, restoring session from stored tokens on app start via `APP_INITIALIZER`
-- [ ] Build `LoginPage`/`RegisterPage` with Reactive Forms (`FormGroup`, validators for email format and password length)
-- [ ] Create `authGuard` (`CanActivateFn`) reading `AuthService.isAuthenticated`, wired to the routes from `feature/core-architecture`
-- [ ] Surface API errors (invalid credentials, email already used) as an `ion-toast`
-- [ ] Unit test: `AuthService.signIn` sets an `unauthorized` `AppError` on a mocked 401 response (`provideHttpClientTesting()`); interceptor retries once after a successful refresh
-- [ ] Unit test: three simultaneous `401` responses trigger exactly one call to `/auth/refresh`, and all three original requests are retried once it resolves
-- [ ] Component test: `LoginPage` shows a validation error on empty submit; successful login navigates to the feed
+- [x] Create `SecureTokenStorageService` (`capacitor-secure-storage-plugin`) for access/refresh tokens
+- [x] Create `authInterceptor` (functional `HttpInterceptorFn`): attaches `Authorization: Bearer <token>`, catches `401`, calls `/auth/refresh`, retries once, signs out on failure
+- [x] Guard against concurrent refresh calls: if several requests hit `401` around the same time, only the first triggers `/auth/refresh`; the rest wait on that same in-flight `Observable` (shared via a `shareReplay(1)` held in `AuthService`) and retry once it resolves, instead of each firing its own refresh call
+- [x] Create `AuthApiService` wrapping `HttpClient` calls to `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`
+- [x] Create `AuthService` facade with a `currentUser` signal and an `isAuthenticated` computed signal, restoring session from stored tokens on app start via `APP_INITIALIZER`
+- [x] Build `LoginPage`/`RegisterPage` with Reactive Forms (`FormGroup`, validators for email format and password length)
+- [x] Create `authGuard` (`CanActivateFn`) reading `AuthService.isAuthenticated`, wired to the routes from `feature/core-architecture`
+- [x] Surface API errors (invalid credentials, email already used) as an `ion-toast`
+- [x] Unit test: `AuthService.signIn` sets an `unauthorized` `AppError` on a mocked 401 response (`provideHttpClientTesting()`); interceptor retries once after a successful refresh
+- [x] Unit test: three simultaneous `401` responses trigger exactly one call to `/auth/refresh`, and all three original requests are retried once it resolves
+- [x] Component test: `LoginPage` shows a validation error on empty submit; successful login navigates to the feed
 
 ---
 
