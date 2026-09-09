@@ -1,10 +1,35 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
+import { AppDatabaseService, SqlExecutor } from './core/database/app-database.service';
 import { AuthService, AuthState } from './features/auth/auth.service';
+
+/**
+ * `FeedPage` (default route once `feature/posts` landed) constructs
+ * `PostsService` on injection, which constructs `PostsLocalService`, which
+ * calls `AppDatabaseService.ready()`. The real service's constructor
+ * bootstraps the actual `jeep-sqlite` web component and fetches its wasm
+ * binary, something Karma's test server does not serve, hanging the whole
+ * suite. This app-shell smoke test does not care what `posts_cache` holds,
+ * only that the router/guard mechanics work, so it never needs the real
+ * database, just something that resolves `ready()` without doing any of
+ * that.
+ */
+class FakeAppDatabaseService {
+  private readonly executor: SqlExecutor = {
+    query: async () => [],
+    run: async () => undefined,
+  };
+
+  ready(): Promise<SqlExecutor> {
+    return Promise.resolve(this.executor);
+  }
+}
 
 /**
  * `authGuard` now sits in front of the `feed`/`posts`/`profile/:id` routes,
@@ -41,7 +66,10 @@ describe('AppComponent', () => {
       providers: [
         provideIonicAngular(),
         provideRouter(routes, withComponentInputBinding()),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: AuthService, useValue: new FakeAuthenticatedAuthService() },
+        { provide: AppDatabaseService, useValue: new FakeAppDatabaseService() },
       ],
     }).compileComponents();
   });
@@ -51,7 +79,7 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('boots the app shell and renders the placeholder feed page for the default route when signed in', async () => {
+  it('boots the app shell and routes to the feed for the default path when signed in', async () => {
     const fixture = TestBed.createComponent(AppComponent);
 
     const router = TestBed.inject(Router);
@@ -59,9 +87,14 @@ describe('AppComponent', () => {
 
     fixture.detectChanges();
 
+    // FeedPage itself (its data loading, its rendered content) has its own
+    // dedicated spec; this test only cares that the app shell boots and the
+    // '' -> 'feed' redirect actually resolves past authGuard, not what
+    // FeedPage does with the (unmocked, intentionally never-flushed) HTTP
+    // call it fires on init.
     const shell = fixture.nativeElement as HTMLElement;
     expect(shell.querySelector('ion-router-outlet')).toBeTruthy();
-    expect(shell.textContent).toContain('Feed');
+    expect(router.url).toBe('/feed');
   });
 });
 
@@ -85,7 +118,10 @@ describe('AppComponent (unauthenticated)', () => {
       providers: [
         provideIonicAngular(),
         provideRouter(routes, withComponentInputBinding()),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: AuthService, useValue: new FakeUnauthenticatedAuthService() },
+        { provide: AppDatabaseService, useValue: new FakeAppDatabaseService() },
       ],
     }).compileComponents();
   });
