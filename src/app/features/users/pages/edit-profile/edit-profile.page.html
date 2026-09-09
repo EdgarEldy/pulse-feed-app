@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Edit profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="edit-profile__avatar">
+    @if (avatarPhotoUrl()) {
+      <img [src]="avatarPhotoUrl()" alt="Your current avatar" class="edit-profile__avatar-img" />
+    } @else {
+      <ion-icon
+        name="person-circle-outline"
+        class="edit-profile__avatar-placeholder"
+        role="img"
+        aria-label="No avatar set yet"
+      ></ion-icon>
+    }
+
+    <app-avatar-picker (uploaded)="onAvatarUploaded($event)" />
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <ion-item>
+      <ion-label position="stacked">Display name</ion-label>
+      <ion-input type="text" formControlName="displayName" autocomplete="name"></ion-input>
+    </ion-item>
+    @if (displayNameControl.invalid && (displayNameControl.touched || submitted())) {
+      <p class="field-error" role="alert">
+        @if (displayNameControl.hasError('required')) {
+          Display name is required.
+        } @else if (displayNameControl.hasError('minlength')) {
+          Display name must be at least 2 characters.
+        }
+      </p>
+    }
+
+    @if (!isOnline()) {
+      <p class="offline-notice" role="status">You're offline. Editing your profile requires a connection.</p>
+    }
+
+    <ion-button expand="block" type="submit" [disabled]="!canSubmit()">
+      {{ isSubmitting() ? 'Saving…' : 'Save changes' }}
+    </ion-button>
+  </form>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMessage()"
+    [color]="toastColor()"
+    [duration]="4000"
+    position="top"
+    (didDismiss)="onToastDismiss()"
+  ></ion-toast>
+</ion-content>
