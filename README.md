@@ -712,16 +712,16 @@ Project structure, Capacitor setup, `HttpClient` configuration, environment conf
 
 ### Tasks
 
-- [ ] `ionic start pulse-feed-app blank --type=angular --capacitor`, configure `eslint`/`angular-eslint`
-- [ ] Create `.env.example` with `API_BASE_URL`; load it into `src/environments/environment.ts` at build time
-- [ ] Configure `provideHttpClient(withInterceptors([...]))` in `app.config.ts`
-- [ ] Create `core/http/api-endpoints.ts` matching the [API Contract](#api-contract)
-- [ ] Create `core/models/app-error.ts` and `core/http/http-error.util.ts`
-- [ ] Create `core/http/base-api.service.ts`: a `providedIn: 'root'` service wrapping `HttpClient` with `get`/`post`/`patch`/`delete` methods returning `Observable<T>` (the parsed body), plus `postMultipartWithProgress<T>(path, formData)` returning `Observable<{ progress: number } | { progress: 100; result: T }>` (built on `HttpClient`'s `reportProgress: true, observe: 'events'` option) for the two upload flows that need it; every method takes an optional `zod` schema argument and validates the response against it before resolving, so schema validation is written once per call site's schema, not once per `*ApiService`; every method prefixes `API_BASE_URL`, serializes query params, and pipes errors through `http-error.util.ts`
-- [ ] Add `@capacitor/core`, run `npx cap add ios` and `npx cap add android`
-- [ ] Declare base routes (`/login`, `/feed`, `/posts/:id`, `/profile/:id`) in `app.routes.ts`, with lazy-loaded feature route files
-- [ ] Set up GitHub Actions `ci.yml` (`ng lint` + `ng test` + `ng build`)
-- [ ] Component test: the app shell boots and the placeholder route renders
+- [x] `ionic start pulse-feed-app blank --type=angular --capacitor`, configure `eslint`/`angular-eslint`
+- [x] Create `.env.example` with `API_BASE_URL`; load it into `src/environments/environment.ts` at build time
+- [x] Configure `provideHttpClient(withInterceptors([...]))` in `app.config.ts`
+- [x] Create `core/http/api-endpoints.ts` matching the [API Contract](#api-contract)
+- [x] Create `core/models/app-error.ts` and `core/http/http-error.util.ts`
+- [x] Create `core/http/base-api.service.ts`: a `providedIn: 'root'` service wrapping `HttpClient` with `get`/`post`/`patch`/`delete` methods returning `Observable<T>` (the parsed body), plus `postMultipartWithProgress<T>(path, formData)` returning `Observable<{ progress: number } | { progress: 100; result: T }>` (built on `HttpClient`'s `reportProgress: true, observe: 'events'` option) for the two upload flows that need it; every method takes an optional `zod` schema argument and validates the response against it before resolving, so schema validation is written once per call site's schema, not once per `*ApiService`; every method prefixes `API_BASE_URL`, serializes query params, and pipes errors through `http-error.util.ts`
+- [x] Add `@capacitor/core`, run `npx cap add ios` and `npx cap add android`
+- [x] Declare base routes (`/login`, `/feed`, `/posts/:id`, `/profile/:id`) in `app.routes.ts`, with lazy-loaded feature route files
+- [x] Set up GitHub Actions `ci.yml` (`ng lint` + `ng test` + `ng build`)
+- [x] Component test: the app shell boots and the placeholder route renders
 
 ---
 
