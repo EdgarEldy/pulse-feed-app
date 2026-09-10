@@ -15,8 +15,7 @@ import {
 } from '@ionic/angular/standalone';
 import type { InfiniteScrollCustomEvent, RefresherCustomEvent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, cloudOfflineOutline, newspaperOutline } from 'ionicons/icons';
-import { ConnectivityService } from '../../../../core/network/connectivity.service';
+import { addOutline, newspaperOutline } from 'ionicons/icons';
 import { AdaptiveGridComponent } from '../../../../shared/components/adaptive-grid/adaptive-grid.component';
 import { ErrorViewComponent } from '../../../../shared/components/error-view/error-view.component';
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
@@ -27,7 +26,6 @@ import { PostsService } from '../../posts.service';
 
 addIcons({
   'add-outline': addOutline,
-  'cloud-offline-outline': cloudOfflineOutline,
   'newspaper-outline': newspaperOutline,
 });
 
@@ -71,10 +69,8 @@ addIcons({
 export class FeedPage {
   private readonly postsService = inject(PostsService);
   private readonly authService = inject(AuthService);
-  private readonly connectivityService = inject(ConnectivityService);
 
   readonly posts = this.postsService.posts;
-  readonly isOnline = this.connectivityService.isOnline;
 
   /** `post.authorId === currentUserId()` is exactly the rule this branch's
    * task list spells out for `PostCardComponent`'s `isOwnPost` input; kept

@@ -9,13 +9,6 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  @if (!isOnline()) {
-    <div class="feed__offline-notice" role="note">
-      <ion-icon name="cloud-offline-outline" aria-hidden="true"></ion-icon>
-      <span>You're offline. The posts below are what's already saved on this device and may not be current.</span>
-    </div>
-  }
-
   @let state = posts();
 
   @if (state.status === 'loading' || state.status === 'idle') {

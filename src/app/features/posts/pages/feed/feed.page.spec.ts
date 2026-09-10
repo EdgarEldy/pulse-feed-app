@@ -4,7 +4,6 @@ import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular/standalone';
-import { ConnectivityService } from '../../../../core/network/connectivity.service';
 import { PostCardComponent } from '../../../../shared/components/post-card/post-card.component';
 import { AuthService } from '../../../auth/auth.service';
 import { User } from '../../../users/user.model';
@@ -67,11 +66,6 @@ class FakeAuthService {
   readonly currentUser: Signal<User | null> = this.userSignal.asReadonly();
 }
 
-class FakeConnectivityService {
-  private readonly onlineSignal = signal(true);
-  readonly isOnline: Signal<boolean> = this.onlineSignal.asReadonly();
-}
-
 describe('FeedPage', () => {
   let fixture: ComponentFixture<FeedPage>;
   let fakePostsService: FakePostsService;
@@ -94,7 +88,6 @@ describe('FeedPage', () => {
         provideRouter([]),
         { provide: PostsService, useValue: fakePostsService },
         { provide: AuthService, useValue: new FakeAuthService() },
-        { provide: ConnectivityService, useValue: new FakeConnectivityService() },
       ],
     }).compileComponents();
 
