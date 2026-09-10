@@ -1,0 +1,37 @@
+<div class="comment-tile">
+  <img
+    class="comment-tile__avatar"
+    [appCachedImage]="comment().authorPhotoUrl"
+    [alt]="comment().authorName"
+    width="36"
+    height="36"
+  />
+
+  <div class="comment-tile__body">
+    <div class="comment-tile__header">
+      <span class="comment-tile__author">{{ comment().authorName }}</span>
+      @if (comment().pendingSync) {
+        <ion-icon
+          class="comment-tile__pending"
+          name="sync-outline"
+          aria-label="Pending sync"
+        ></ion-icon>
+      }
+      <span class="comment-tile__time">{{ comment().createdAt | timeAgo }}</span>
+    </div>
+    <p class="comment-tile__content">{{ comment().content }}</p>
+  </div>
+
+  @if (canDelete() && !comment().pendingSync) {
+    <ion-button
+      class="comment-tile__delete"
+      fill="clear"
+      size="small"
+      color="danger"
+      aria-label="Delete comment"
+      (click)="onDelete()"
+    >
+      <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
+    </ion-button>
+  }
+</div>
