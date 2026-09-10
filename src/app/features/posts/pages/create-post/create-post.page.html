@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>New post</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <ion-item>
+      <ion-label position="stacked">Title</ion-label>
+      <ion-input type="text" formControlName="title" [readonly]="isUploading()"></ion-input>
+    </ion-item>
+    @if (titleControl.invalid && (titleControl.touched || submitted())) {
+      <p class="field-error" role="alert">Title is required.</p>
+    }
+
+    <ion-item>
+      <ion-label position="stacked">Content</ion-label>
+      <ion-textarea formControlName="content" autoGrow="true" [readonly]="isUploading()"></ion-textarea>
+    </ion-item>
+    @if (contentControl.invalid && (contentControl.touched || submitted())) {
+      <p class="field-error" role="alert">Content is required.</p>
+    }
+
+    <div class="create-post__image">
+      @if (pickedImageUri()) {
+        <div class="create-post__image-preview">
+          <img [src]="pickedImageUri()" alt="Preview of the image picked for this post" />
+          <ion-button
+            fill="clear"
+            shape="round"
+            aria-label="Remove picked photo"
+            [disabled]="isUploading()"
+            (click)="removeImage()"
+          >
+            <ion-icon slot="icon-only" name="close-circle" aria-hidden="true"></ion-icon>
+          </ion-button>
+        </div>
+      } @else {
+        <ion-button
+          fill="outline"
+          aria-label="Add a photo to this post"
+          [disabled]="isUploading()"
+          (click)="pickImage()"
+        >
+          <ion-icon slot="start" name="image-outline" aria-hidden="true"></ion-icon>
+          Add photo
+        </ion-button>
+      }
+    </div>
+
+    @if (isUploading()) {
+      <ion-progress-bar
+        [value]="createProgress()! / 100"
+        [attr.aria-label]="'Publishing post, ' + createProgress() + ' percent complete'"
+      ></ion-progress-bar>
+    }
+
+    <ion-button expand="block" type="submit" [disabled]="!canSubmit()">
+      {{ isUploading() ? 'Publishing…' : 'Publish' }}
+    </ion-button>
+  </form>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMessage()"
+    color="danger"
+    [duration]="4000"
+    position="top"
+    (didDismiss)="onToastDismiss()"
+  ></ion-toast>
+</ion-content>

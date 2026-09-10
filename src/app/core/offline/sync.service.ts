@@ -12,20 +12,26 @@ import { ConnectivityService } from '../network/connectivity.service';
  * made offline").
  *
  * `replay` re-issues the original request against the real API, from the
- * same `payload` that was handed to `enqueue()` (round-tripped through
- * `JSON.stringify`/`JSON.parse`, so `payload` arrives here as `unknown`,
- * not the original typed object). `onSynced` only matters for a `create`
- * that produced a client-generated `temp-<uuid>` id: it is the reconciler's
- * chance to replace that temporary id everywhere it was cached or
- * displayed, now that the server's real id (`synced`) is known.
+ * same `operation`/`payload` that were handed to `enqueue()` (`payload`
+ * round-tripped through `JSON.stringify`/`JSON.parse`, so it arrives here
+ * as `unknown`, not the original typed object). A single `entityType`
+ * covers all three operations, per README's "Reconciling writes made
+ * offline" ("register a reconciler with SyncService for entityType:
+ * 'post'", not one reconciler per operation), so `replay` itself is what
+ * dispatches to the right `PostsApiService`/`CommentsApiService` method
+ * for whichever `operation` this particular row was queued with.
+ * `onSynced` only matters for a `create` that produced a client-generated
+ * `temp-<uuid>` id: it is the reconciler's chance to replace that
+ * temporary id everywhere it was cached or displayed, now that the
+ * server's real id (`synced`) is known.
  */
 export interface PendingWriteReconciler<T> {
   entityType: string;
-  replay: (payload: unknown) => Observable<T>;
+  replay: (operation: PendingWriteOperation, payload: unknown) => Observable<T>;
   onSynced: (tempId: string, synced: T) => Promise<void>;
 }
 
-type PendingWriteOperation = 'create' | 'update' | 'delete';
+export type PendingWriteOperation = 'create' | 'update' | 'delete';
 
 /**
  * The literal shape of a `pending_writes` row, as `AppDatabaseService`'s
@@ -221,7 +227,7 @@ export class SyncService {
         let synced: unknown;
         try {
           const payload: unknown = JSON.parse(row.payload_json);
-          synced = await this.replayOnce(reconciler, payload);
+          synced = await this.replayOnce(reconciler, row.operation, payload);
         } catch {
           // The write itself never reached the server, most commonly
           // because the device dropped offline again mid-replay. The row
@@ -257,9 +263,13 @@ export class SyncService {
     }
   }
 
-  private replayOnce<T>(reconciler: PendingWriteReconciler<T>, payload: unknown): Promise<T> {
+  private replayOnce<T>(
+    reconciler: PendingWriteReconciler<T>,
+    operation: PendingWriteOperation,
+    payload: unknown,
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
-      reconciler.replay(payload).subscribe({ next: resolve, error: reject });
+      reconciler.replay(operation, payload).subscribe({ next: resolve, error: reject });
     });
   }
 }

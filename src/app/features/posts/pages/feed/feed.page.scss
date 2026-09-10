@@ -1,0 +1,23 @@
+.feed__card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.feed__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--app-space-sm);
+  padding: var(--app-space-xl) var(--app-space-md);
+  color: var(--ion-color-medium);
+  text-align: center;
+
+  ion-icon {
+    font-size: 48px;
+  }
+
+  p {
+    margin: 0;
+  }
+}

@@ -1,0 +1,50 @@
+<app-card>
+  <div card-header class="post-card__header">
+    <img
+      class="post-card__avatar"
+      [appCachedImage]="post().authorPhotoUrl"
+      [alt]="post().authorName"
+      width="40"
+      height="40"
+    />
+    <div class="post-card__author">
+      <span class="post-card__author-name">{{ post().authorName }}</span>
+      <span class="post-card__timestamp">{{ post().createdAt | date: 'medium' }}</span>
+    </div>
+    @if (post().pendingSync) {
+      <ion-badge class="post-card__pending" color="medium">
+        <ion-icon name="sync-outline" aria-hidden="true"></ion-icon>
+        Syncing
+      </ion-badge>
+    }
+  </div>
+
+  <h2 class="post-card__title">{{ post().title }}</h2>
+  <p class="post-card__content">{{ post().content }}</p>
+
+  @if (post().imageUrl; as imageUrl) {
+    <img
+      class="post-card__image"
+      [appCachedImage]="imageUrl"
+      [alt]="post().title"
+      [attr.data-post-hero]="postHeroId(post().id)"
+    />
+  }
+
+  @if (canManage()) {
+    <div class="post-card__actions">
+      <ion-button fill="clear" size="small" aria-label="Edit post" (click)="onEdit(); $event.stopPropagation()">
+        <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+      <ion-button
+        fill="clear"
+        size="small"
+        color="danger"
+        aria-label="Delete post"
+        (click)="onDelete(); $event.stopPropagation()"
+      >
+        <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </div>
+  }
+</app-card>

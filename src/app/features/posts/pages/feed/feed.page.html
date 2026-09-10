@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Feed</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @let state = posts();
+
+  @if (state.status === 'loading' || state.status === 'idle') {
+    <app-loading-indicator label="Loading posts" />
+  } @else if (state.status === 'error') {
+    <app-error-view [error]="state.error" (retry)="onRetry()" />
+  } @else if (state.status === 'success' && state.data.length === 0) {
+    <div class="feed__empty" role="status">
+      <ion-icon name="newspaper-outline" aria-hidden="true"></ion-icon>
+      <p>No posts yet. Be the first to share something.</p>
+    </div>
+  } @else if (state.status === 'success') {
+    <app-adaptive-grid>
+      @for (post of state.data; track post.id) {
+        <a class="feed__card-link" [routerLink]="['/posts', post.id]">
+          <app-post-card [post]="post" [isOwnPost]="isOwnPost(post)" (edit)="onEdit(post)" (delete)="onDelete(post)" />
+        </a>
+      }
+    </app-adaptive-grid>
+
+    <ion-infinite-scroll (ionInfinite)="onLoadMore($event)" [disabled]="state.nextCursor === null">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/posts/create" aria-label="Create post">
+      <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -848,23 +848,23 @@ The full post lifecycle: feed, pagination, detail, create/edit/delete, image upl
 
 ### Tasks
 
-- [ ] Create `PostsApiService` (built on `BaseApiService`; one method per endpoint for `GET /posts`, `GET /posts/:id`, `POST /posts`, `PATCH /posts/:id`, `DELETE /posts/:id`, no direct `HttpClient` use)
-- [ ] Create `PostsLocalService` (composed from `SqliteTable<PostRow>` targeting `posts_cache`, following the reference pattern from `feature/offline-and-sync`, no raw SQL)
-- [ ] Create `PostsService` facade: `loadPosts()`/`loadMore()`/`loadPost(id)` call `loadOfflineFirst(...)` and track `nextCursor`; register a reconciler with `SyncService` for `entityType: 'post'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
-- [ ] Implement `createPost()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `posts` signal, then call `SyncService.enqueue('post', 'create', payload, tempId)`; on any other error kind, surface it without queuing
-- [ ] Implement `updatePost()`/`deletePost()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('post', 'update' | 'delete', payload)` (no `tempId`, since these target an existing real `id`)
-- [ ] Build `FeedPage` with `@for` and `track`, empty/loading/error/offline states, `ion-refresher` for pull-to-refresh
-- [ ] Add `ion-infinite-scroll` calling `loadMore()`, disabled once `nextCursor` is `null`
-- [ ] Build `PostCardComponent` using the `AdaptiveGridComponent`/`ResizeObserver` primitive from `feature/design-system`; show a pending-sync indicator and hide edit/delete actions when `post.pendingSync` is `true`, even for the author
-- [ ] Build `CreatePostPage`: Reactive Form, `@capacitor/camera`, multipart upload via `PostsApiService` (which goes through `BaseApiService`) with progress events; persist the picked image's local file URI so it can still be read and re-submitted if the post is created while offline
-- [ ] Render images with a caching `<img>` directive backed by `@capacitor/filesystem` (placeholder and error state)
-- [ ] Add a shared-element page transition between the feed thumbnail and the detail image (Ionic's built-in route transition, customized)
-- [ ] Animate `PostCardComponent` entry with the Angular Animations API (`trigger`/`transition`)
-- [ ] Business rule: only the author can edit/delete their post, and only once it is no longer `pendingSync`; hide those actions otherwise
-- [ ] Unit test: `PostsService.createPost` rejects empty title/content before calling the API service
-- [ ] Unit test: `PostsService.createPost` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
-- [ ] Unit test: the registered post reconciler's `onSynced` replaces the temporary row (in both `PostsLocalService` and the `posts` signal) with the server-assigned post
-- [ ] Component test: `FeedPage` renders one `PostCardComponent` per item from a mocked response; delete action hidden for non-authors and for posts still `pendingSync`
+- [x] Create `PostsApiService` (built on `BaseApiService`; one method per endpoint for `GET /posts`, `GET /posts/:id`, `POST /posts`, `PATCH /posts/:id`, `DELETE /posts/:id`, no direct `HttpClient` use)
+- [x] Create `PostsLocalService` (composed from `SqliteTable<PostRow>` targeting `posts_cache`, following the reference pattern from `feature/offline-and-sync`, no raw SQL)
+- [x] Create `PostsService` facade: `loadPosts()`/`loadMore()`/`loadPost(id)` call `loadOfflineFirst(...)` and track `nextCursor`; register a reconciler with `SyncService` for `entityType: 'post'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
+- [x] Implement `createPost()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `posts` signal, then call `SyncService.enqueue('post', 'create', payload, tempId)`; on any other error kind, surface it without queuing
+- [x] Implement `updatePost()`/`deletePost()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('post', 'update' | 'delete', payload)` (no `tempId`, since these target an existing real `id`)
+- [x] Build `FeedPage` with `@for` and `track`, empty/loading/error/offline states, `ion-refresher` for pull-to-refresh
+- [x] Add `ion-infinite-scroll` calling `loadMore()`, disabled once `nextCursor` is `null`
+- [x] Build `PostCardComponent` using the `AdaptiveGridComponent`/`ResizeObserver` primitive from `feature/design-system`; show a pending-sync indicator and hide edit/delete actions when `post.pendingSync` is `true`, even for the author
+- [x] Build `CreatePostPage`: Reactive Form, `@capacitor/camera`, multipart upload via `PostsApiService` (which goes through `BaseApiService`) with progress events; persist the picked image's local file URI so it can still be read and re-submitted if the post is created while offline
+- [x] Render images with a caching `<img>` directive backed by `@capacitor/filesystem` (placeholder and error state)
+- [x] Add a shared-element page transition between the feed thumbnail and the detail image (Ionic's built-in route transition, customized)
+- [x] Animate `PostCardComponent` entry with the Angular Animations API (`trigger`/`transition`)
+- [x] Business rule: only the author can edit/delete their post, and only once it is no longer `pendingSync`; hide those actions otherwise
+- [x] Unit test: `PostsService.createPost` rejects empty title/content before calling the API service
+- [x] Unit test: `PostsService.createPost` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
+- [x] Unit test: the registered post reconciler's `onSynced` replaces the temporary row (in both `PostsLocalService` and the `posts` signal) with the server-assigned post
+- [x] Component test: `FeedPage` renders one `PostCardComponent` per item from a mocked response; delete action hidden for non-authors and for posts still `pendingSync`
 
 ---
 

@@ -121,7 +121,7 @@ describe('SyncService', () => {
     const onSyncedSpy = jasmine.createSpy('onSynced').and.returnValue(Promise.resolve());
     service.register<typeof syncedPost>({
       entityType: 'post',
-      replay: (payload: unknown) => replaySpy(payload) as Observable<typeof syncedPost>,
+      replay: (operation, payload) => replaySpy(operation, payload) as Observable<typeof syncedPost>,
       onSynced: (tempId: string, synced: typeof syncedPost) => onSyncedSpy(tempId, synced) as Promise<void>,
     });
 
@@ -132,7 +132,7 @@ describe('SyncService', () => {
     TestBed.tick();
     await flushPromises();
 
-    expect(replaySpy).toHaveBeenCalledWith({ title: 'Hello' });
+    expect(replaySpy).toHaveBeenCalledWith('create', { title: 'Hello' });
     expect(onSyncedSpy).toHaveBeenCalledWith('temp-1', syncedPost);
     expect(rows.length).toBe(0);
   });
@@ -146,7 +146,7 @@ describe('SyncService', () => {
     const onSyncedSpy = jasmine.createSpy('onSynced');
     service.register<{ id: string }>({
       entityType: 'post',
-      replay: (payload: unknown) => replaySpy(payload) as Observable<{ id: string }>,
+      replay: (operation, payload) => replaySpy(operation, payload) as Observable<{ id: string }>,
       onSynced: (tempId: string, synced: { id: string }) => onSyncedSpy(tempId, synced) as Promise<void>,
     });
 
@@ -184,13 +184,13 @@ describe('SyncService', () => {
     // constructor during app start.
     service.register<typeof syncedPost>({
       entityType: 'post',
-      replay: (payload: unknown) => replaySpy(payload) as Observable<typeof syncedPost>,
+      replay: (operation, payload) => replaySpy(operation, payload) as Observable<typeof syncedPost>,
       onSynced: (tempId: string, synced: typeof syncedPost) => onSyncedSpy(tempId, synced) as Promise<void>,
     });
 
     await flushPromises();
 
-    expect(replaySpy).toHaveBeenCalledWith({ title: 'Hello' });
+    expect(replaySpy).toHaveBeenCalledWith('create', { title: 'Hello' });
     expect(onSyncedSpy).toHaveBeenCalledWith('temp-1', syncedPost);
     expect(rows.length).toBe(0);
   });

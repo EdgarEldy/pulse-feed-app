@@ -1,0 +1,30 @@
+.field-error {
+  margin: 0 0 var(--app-space-sm) var(--app-space-md);
+  font-size: 0.875rem;
+  color: var(--ion-color-danger);
+}
+
+.create-post__image {
+  margin: var(--app-space-md) 0;
+}
+
+.create-post__image-preview {
+  position: relative;
+  display: inline-block;
+
+  img {
+    display: block;
+    max-width: 100%;
+    max-height: 240px;
+    border-radius: var(--app-radius);
+    object-fit: cover;
+  }
+
+  ion-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+}
