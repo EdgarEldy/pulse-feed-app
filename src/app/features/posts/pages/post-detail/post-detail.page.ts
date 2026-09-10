@@ -80,29 +80,16 @@ export class PostDetailPage {
   }
 
   /**
-   * Gates edit/delete on authorship only, not on `pendingSync` the way
-   * `PostCardComponent.canManage` does. That is a real, deliberate gap, not
-   * an oversight: `PostDetailState.data` is typed `Post` (see
-   * `post.model.ts`), and `Post` carries no `pendingSync` field at all,
-   * only `PostRow` (the local-cache-only shape `PostsLocalService` and the
-   * feed's `posts` signal use) does. `PostsService.loadPost`'s offline
-   * fallback path does, at runtime, hand back an object that happens to
-   * carry `pendingSync` (its cache read resolves a `PostRow`), but nothing
-   * about `PostDetailState`'s declared type exposes that here, and reaching
-   * into the object beyond its own type to read a field it doesn't declare
-   * would be exactly the kind of silent guess this codebase's conventions
-   * ask not to make.
-   *
-   * Surfacing this properly would mean widening `PostsService.postDetail`
-   * to carry `PostRow` instead of `Post`, a call for whoever owns
-   * `PostsService` next to make (it also determines what
-   * `PostDetailPage.canManage` should look like), not something this page
-   * should decide on its own by reading past its facade's stated contract.
-   * Flagging this here for the reviewer rather than guessing.
+   * Gates edit/delete on authorship and `pendingSync`, matching
+   * `PostCardComponent.canManage`: `PostDetailState.data` is typed
+   * `PostRow` (see `PostsService`'s `PostDetailState` union), which does
+   * carry `pendingSync`, so this page has exactly the same information
+   * `PostCardComponent` does to decide whether editing/deleting is safe
+   * right now, and applies the same rule.
    */
   readonly canManage = computed(() => {
     const state = this.postDetail();
-    return state.status === 'success' && state.data.authorId === this.authService.currentUser()?.id;
+    return state.status === 'success' && state.data.authorId === this.authService.currentUser()?.id && !state.data.pendingSync;
   });
 
   onRetry(): void {
