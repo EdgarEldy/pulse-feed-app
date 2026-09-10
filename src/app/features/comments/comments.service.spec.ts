@@ -79,20 +79,17 @@ describe('CommentsService', () => {
     it('rejects empty content before calling the API service', () => {
       service.addComment('post-1', '');
 
-      expect(service.comments()).toEqual({
-        status: 'error',
-        error: { kind: 'validation', message: 'Comment content is required.' },
-      });
+      // State must remain idle (unchanged) so a loaded comment list is never
+      // clobbered by a transient validation failure — CommentInputComponent
+      // already guards before reaching here.
+      expect(service.comments()).toEqual({ status: 'idle' });
       expect(fakeApi.addComment).not.toHaveBeenCalled();
     });
 
     it('rejects whitespace-only content before calling the API service', () => {
       service.addComment('post-1', '   ');
 
-      expect(service.comments()).toEqual({
-        status: 'error',
-        error: { kind: 'validation', message: 'Comment content is required.' },
-      });
+      expect(service.comments()).toEqual({ status: 'idle' });
       expect(fakeApi.addComment).not.toHaveBeenCalled();
     });
   });
