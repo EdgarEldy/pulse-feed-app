@@ -7,6 +7,7 @@ import { cameraOutline } from 'ionicons/icons';
 import { AppError } from '../../../core/models/app-error';
 import { UsersService } from '../../../features/users/users.service';
 import { ErrorViewComponent } from '../error-view/error-view.component';
+import { fileFromUri } from '../../utils/blob-file.util';
 
 addIcons({ 'camera-outline': cameraOutline });
 
@@ -127,19 +128,16 @@ export class AvatarPickerComponent {
 
   /**
    * `webPath` is a path Capacitor makes readable the same way on the web
-   * build and inside the native WebView, which `fetch` can turn into a
-   * `Blob`, and from there into the `File` `UsersApiService.uploadAvatar`
-   * builds its multipart body from. Every rejection here is a genuine
-   * failure, unlike `promptForPhoto()`'s cancellation case, so this lets
-   * them propagate rather than swallowing them.
+   * build and inside the native WebView, which `fileFromUri` turns into the
+   * `File` `UsersApiService.uploadAvatar` builds its multipart body from.
+   * Every rejection here is a genuine failure, unlike `promptForPhoto()`'s
+   * cancellation case, so this lets them propagate rather than swallowing
+   * them.
    */
   private async toFile(photo: Photo): Promise<File> {
     if (!photo.webPath) {
       throw new Error('Camera did not return a usable image path.');
     }
-    const response = await fetch(photo.webPath);
-    const blob = await response.blob();
-    const extension = photo.format ?? 'jpeg';
-    return new File([blob], `avatar.${extension}`, { type: blob.type });
+    return fileFromUri(photo.webPath, 'avatar', photo.format);
   }
 }
