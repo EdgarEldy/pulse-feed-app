@@ -8,6 +8,7 @@ import { ErrorViewComponent } from '../../../../shared/components/error-view/err
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
 import { CachedImageDirective } from '../../../../shared/directives/cached-image.directive';
 import { AuthService } from '../../../auth/auth.service';
+import { CommentsSectionComponent } from '../../../comments/components/comments-section/comments-section.component';
 import { postHeroId } from '../../post-hero-transition.util';
 import { PostsService } from '../../posts.service';
 
@@ -45,6 +46,7 @@ addIcons({
     IonTitle,
     IonToolbar,
     CachedImageDirective,
+    CommentsSectionComponent,
     DatePipe,
     ErrorViewComponent,
     LoadingIndicatorComponent,
