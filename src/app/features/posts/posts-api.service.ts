@@ -5,6 +5,7 @@ import { apiEndpoints } from '../../core/http/api-endpoints';
 import { BaseApiService, UploadEvent } from '../../core/http/base-api.service';
 import { PostDto, postDtoSchema, toPost } from './post.dto';
 import { Post } from './post.model';
+import { fileFromUri } from '../../shared/utils/blob-file.util';
 
 /** `GET /posts` is served in pages of this size; the API Contract leaves the exact number up to the client. */
 const POSTS_PAGE_SIZE = 20;
@@ -103,28 +104,21 @@ export class PostsApiService {
   /**
    * Builds the `title`/`content`/`image` multipart body the API Contract
    * expects. `payload.imageUri` only ever becomes a real `File` here, at
-   * the last possible moment before the request goes out, mirroring the
-   * `fetch(webPath) -> blob() -> File` conversion `AvatarPickerComponent`
-   * already uses for the avatar upload: `webPath` (or, when this call is a
-   * replay of a queued offline write, whatever local path the picked image
-   * was still readable at) is a path `fetch` can turn into a `Blob` on both
-   * the web build and inside the native WebView.
+   * the last possible moment before the request goes out, through the same
+   * `fileFromUri` helper `AvatarPickerComponent` uses for the avatar
+   * upload: `imageUri` (a `webPath`, or, when this call is a replay of a
+   * queued offline write, whatever local path the picked image was still
+   * readable at) is a path `fetch` can turn into a `Blob` on both the web
+   * build and inside the native WebView.
    */
   private async buildCreateFormData(payload: CreatePostPayload): Promise<FormData> {
     const formData = new FormData();
     formData.append('title', payload.title);
     formData.append('content', payload.content);
     if (payload.imageUri) {
-      const image = await this.toFile(payload.imageUri);
+      const image = await fileFromUri(payload.imageUri, 'post-image');
       formData.append('image', image);
     }
     return formData;
-  }
-
-  private async toFile(imageUri: string): Promise<File> {
-    const response = await fetch(imageUri);
-    const blob = await response.blob();
-    const extension = blob.type.split('/')[1] ?? 'jpeg';
-    return new File([blob], `post-image.${extension}`, { type: blob.type });
   }
 }
