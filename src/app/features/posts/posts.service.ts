@@ -160,7 +160,14 @@ export class PostsService {
     }
     this.api.getPosts(current.nextCursor).subscribe({
       next: (page) => {
-        this.state.set({ status: 'success', data: [...current.data, ...page.items.map(toPostRow)], nextCursor: page.nextCursor });
+        // Reads `this.state()` fresh here rather than closing over `current`
+        // captured above: `posts` can change while this request is in
+        // flight (a `createPost` optimistically prepending a row, say), and
+        // writing this page's results back onto a stale snapshot would
+        // silently discard that change.
+        this.state.update((s) =>
+          s.status === 'success' ? { status: 'success', data: [...s.data, ...page.items.map(toPostRow)], nextCursor: page.nextCursor } : s,
+        );
         void this.local.upsertAll(page.items.map((post) => ({ ...post, pendingSync: false })));
       },
       error: (error: AppError) => this.state.set({ status: 'error', error }),
@@ -216,7 +223,7 @@ export class PostsService {
         this.uploadProgress.set(null);
         const row: PostRow = { ...event.result, pendingSync: false };
         void this.local.upsert(row);
-        this.state.update((s) => (s.status === 'success' ? { ...s, data: [row, ...s.data] } : s));
+        this.prependToFeed(row);
       },
       error: (error: AppError) => {
         this.uploadProgress.set(null);
@@ -245,10 +252,24 @@ export class PostsService {
           pendingSync: true,
         };
         void this.local.upsert(optimisticPost);
-        this.state.update((s) => (s.status === 'success' ? { ...s, data: [optimisticPost, ...s.data] } : s));
+        this.prependToFeed(optimisticPost);
         void this.sync.enqueue('post', 'create', payload, tempId);
       },
     });
+  }
+
+  /**
+   * Prepends a freshly created post to `posts`, initializing it to a
+   * one-item `success` state when it is not already `success` rather than
+   * silently dropping the write. `CreatePostPage` is reachable directly (a
+   * deep link to `/posts/create`, or navigating there before `FeedPage` has
+   * ever mounted) without `loadPosts()` having run first, in which case
+   * `posts()` is still `idle`; without this, the new post would never
+   * appear in the signal `CreatePostPage`'s own effect watches to know the
+   * create succeeded, leaving that page stuck waiting forever.
+   */
+  private prependToFeed(post: PostRow): void {
+    this.state.update((s) => (s.status === 'success' ? { ...s, data: [post, ...s.data] } : { status: 'success', data: [post], nextCursor: null }));
   }
 
   updatePost(id: string, payload: UpdatePostPayload): void {

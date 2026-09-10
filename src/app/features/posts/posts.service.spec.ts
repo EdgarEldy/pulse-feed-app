@@ -1,6 +1,6 @@
 import { Signal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom, of, throwError } from 'rxjs';
+import { Subject, firstValueFrom, of, throwError } from 'rxjs';
 import { AppError } from '../../core/models/app-error';
 import { PendingWriteReconciler, SyncService } from '../../core/offline/sync.service';
 import { AuthService } from '../auth/auth.service';
@@ -184,6 +184,42 @@ describe('PostsService', () => {
     });
   });
 
+  describe('createPost before posts have ever been loaded', () => {
+    it('initializes a fresh success state on a successful response, instead of dropping the post', () => {
+      expect(service.posts()).toEqual({ status: 'idle' });
+
+      fakeApi.createPostWithProgress.and.returnValue(of({ progress: 100, result: samplePost }));
+
+      service.createPost({ title: samplePost.title, content: samplePost.content });
+
+      expect(service.posts()).toEqual({
+        status: 'success',
+        data: [{ ...samplePost, pendingSync: false }],
+        nextCursor: null,
+      });
+    });
+
+    it('initializes a fresh success state with the optimistic row on a network error, instead of dropping it', () => {
+      expect(service.posts()).toEqual({ status: 'idle' });
+
+      const payload: CreatePostPayload = { title: 'Offline post', content: 'Written offline' };
+      fakeApi.createPostWithProgress.and.returnValue(throwError(() => networkError));
+
+      service.createPost(payload);
+
+      const state = service.posts();
+      expect(state.status).toBe('success');
+      if (state.status !== 'success') {
+        return;
+      }
+      expect(state.nextCursor).toBeNull();
+      expect(state.data.length).toBe(1);
+      expect(state.data[0].pendingSync).toBeTrue();
+      expect(state.data[0].id.startsWith('temp-')).toBeTrue();
+      expect(state.data[0].title).toBe(payload.title);
+    });
+  });
+
   describe('registered post reconciler', () => {
     it('onSynced replaces the temporary row in PostsLocalService and in the posts signal', async () => {
       fakeApi.getPosts.and.returnValue(of({ items: [], nextCursor: null }));
@@ -311,6 +347,43 @@ describe('PostsService', () => {
 
       expect(service.posts()).toEqual({ status: 'error', error: networkError });
       expect(fakeLocal.getAll).not.toHaveBeenCalled();
+    });
+
+    it('does not clobber a state change that lands while the request is in flight', async () => {
+      fakeApi.getPosts.and.returnValue(of({ items: [samplePost], nextCursor: 'cursor-2' }));
+      service.loadPosts();
+      await flushLoad();
+
+      const loadMoreResponse = new Subject<{ items: Post[]; nextCursor: string | null }>();
+      fakeApi.getPosts.and.returnValue(loadMoreResponse.asObservable());
+
+      service.loadMore();
+
+      // Something else writes to `posts` while the loadMore request is still
+      // in flight, e.g. createPost prepending a new post optimistically.
+      const concurrentPost: Post = { ...samplePost, id: 'post-concurrent' };
+      fakeApi.createPostWithProgress.and.returnValue(of({ progress: 100, result: concurrentPost }));
+      service.createPost({ title: concurrentPost.title, content: concurrentPost.content });
+
+      expect(service.posts()).toEqual({
+        status: 'success',
+        data: [{ ...concurrentPost, pendingSync: false }, { ...samplePost, pendingSync: false }],
+        nextCursor: 'cursor-2',
+      });
+
+      const secondPost: Post = { ...samplePost, id: 'post-2' };
+      loadMoreResponse.next({ items: [secondPost], nextCursor: null });
+      loadMoreResponse.complete();
+
+      expect(service.posts()).toEqual({
+        status: 'success',
+        data: [
+          { ...concurrentPost, pendingSync: false },
+          { ...samplePost, pendingSync: false },
+          { ...secondPost, pendingSync: false },
+        ],
+        nextCursor: null,
+      });
     });
 
     it('does nothing when there is no next page', async () => {
