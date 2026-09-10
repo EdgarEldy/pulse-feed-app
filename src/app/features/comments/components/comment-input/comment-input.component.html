@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Add comment</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onClose()">&#x2715;</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-textarea
+    #autoFocus
+    placeholder="Write a comment…"
+    [autoGrow]="true"
+    [formControl]="content"
+  ></ion-textarea>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" [disabled]="!content.value?.trim()" (click)="onSubmit()">
+      Post
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

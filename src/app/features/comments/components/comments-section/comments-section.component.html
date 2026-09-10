@@ -1,0 +1,32 @@
+<section aria-label="Comments">
+  <h2>Comments</h2>
+
+  @let state = comments();
+
+  @if (state.status === 'loading' || state.status === 'idle') {
+    <app-loading-indicator />
+  } @else if (state.status === 'error') {
+    <app-error-view [error]="state.error" (retry)="onRetry()" />
+  } @else if (state.status === 'success') {
+    @for (comment of state.data; track comment.id) {
+      <app-comment-tile
+        [comment]="comment"
+        [canDelete]="canDelete(comment)"
+        (delete)="onDelete(comment.id)"
+      />
+    }
+
+    @if (state.data.length === 0) {
+      <p class="no-comments">No comments yet. Be the first!</p>
+    }
+
+    @if (state.nextCursor) {
+      <ion-button expand="block" fill="clear" (click)="loadMore()">Load more</ion-button>
+    }
+  }
+
+  <ion-button expand="block" (click)="openCommentInput()">
+    <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+    Add comment
+  </ion-button>
+</section>

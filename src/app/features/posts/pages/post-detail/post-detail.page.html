@@ -71,10 +71,10 @@
         </span>
       </div>
 
-      <section class="post-detail__comments" aria-label="Comments">
-        <h2>Comments</h2>
-        <p class="post-detail__placeholder">Comments coming soon.</p>
-      </section>
+      <app-comments-section
+        [postId]="detail.data.id"
+        [postAuthorId]="detail.data.authorId"
+      />
     </article>
   }
 </ion-content>
