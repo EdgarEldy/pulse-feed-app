@@ -69,12 +69,11 @@ export const postHeroTransition: AnimationBuilder = (baseEl: HTMLElement, opts: 
     return defaultTransition(baseEl, opts);
   }
 
-  const enteringHero = findHeroElement(enteringEl);
-  const leavingHero = findHeroElement(leavingEl);
-
-  if (!enteringHero || !leavingHero || enteringHero.getAttribute(POST_HERO_ATTR) !== leavingHero.getAttribute(POST_HERO_ATTR)) {
+  const matched = findMatchingHeroPair(enteringEl, leavingEl);
+  if (!matched) {
     return defaultTransition(baseEl, opts);
   }
+  const { enteringHero, leavingHero } = matched;
 
   const fromRect = leavingHero.getBoundingClientRect();
   const toRect = enteringHero.getBoundingClientRect();
@@ -89,8 +88,31 @@ export const postHeroTransition: AnimationBuilder = (baseEl: HTMLElement, opts: 
   return buildHeroAnimation(baseEl, enteringEl, leavingEl, enteringHero, fromRect, toRect);
 };
 
-function findHeroElement(pageRoot: HTMLElement): HTMLElement | null {
-  return pageRoot.querySelector<HTMLElement>(`[${POST_HERO_ATTR}]`);
+/**
+ * `FeedPage` renders one `[data-post-hero]` element per visible card, not
+ * just one: a plain `querySelector` on the feed side would always return
+ * the first card in DOM order, regardless of which card was actually
+ * tapped, so the hero animation would only ever look right for that first
+ * card. This instead pairs up every hero element on both sides by their
+ * `data-post-hero` value and returns the one match (`PostDetailPage` only
+ * ever renders a single hero, so at most one pairing can exist), which
+ * works correctly in both navigation directions: forward from a specific
+ * feed card into the detail page, and back again.
+ */
+function findMatchingHeroPair(enteringEl: HTMLElement, leavingEl: HTMLElement): { enteringHero: HTMLElement; leavingHero: HTMLElement } | null {
+  const enteringHeroes = Array.from(enteringEl.querySelectorAll<HTMLElement>(`[${POST_HERO_ATTR}]`));
+  const leavingHeroesById = new Map(
+    Array.from(leavingEl.querySelectorAll<HTMLElement>(`[${POST_HERO_ATTR}]`)).map((el) => [el.getAttribute(POST_HERO_ATTR), el] as const),
+  );
+
+  for (const enteringHero of enteringHeroes) {
+    const id = enteringHero.getAttribute(POST_HERO_ATTR);
+    const leavingHero = id !== null ? leavingHeroesById.get(id) : undefined;
+    if (leavingHero) {
+      return { enteringHero, leavingHero };
+    }
+  }
+  return null;
 }
 
 function buildHeroAnimation(
