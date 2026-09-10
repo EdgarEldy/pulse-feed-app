@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   IonButton,
@@ -31,8 +31,6 @@ import {
   styleUrl: './comment-input.component.scss',
 })
 export class CommentInputComponent implements AfterViewInit {
-  @Output() readonly submitted = new EventEmitter<string>();
-
   @ViewChild('autoFocus') private readonly textarea!: IonTextarea;
 
   private readonly modal = inject(ModalController);
