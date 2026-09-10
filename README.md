@@ -882,18 +882,18 @@ Comments list, creation, deletion, keyboard and viewport handling.
 
 ### Tasks
 
-- [ ] Create `CommentsApiService` (built on `BaseApiService`; `GET /posts/:postId/comments`, `POST /posts/:postId/comments`, `DELETE /comments/:id`)
-- [ ] Create `CommentsLocalService` (composed from `SqliteTable<CommentRow>` targeting `comments_cache`)
-- [ ] Create `CommentsService` facade: `loadComments(postId)` calls `loadOfflineFirst(...)` and tracks `nextCursor`; register a reconciler with `SyncService` for `entityType: 'comment'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
-- [ ] Implement `addComment()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `comments` signal, then call `SyncService.enqueue('comment', 'create', payload, tempId)`
-- [ ] Implement `deleteComment()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('comment', 'delete', payload)` (no `tempId`, targets an existing real `id`)
-- [ ] Build `CommentsSectionComponent` with relative dates (a small `timeAgo` pipe); show a pending-sync indicator on `CommentTileComponent` when `comment.pendingSync` is `true`
-- [ ] Open comment input in an `ion-modal` with the keyboard auto-focused on the input
-- [ ] Handle Ionic's keyboard-aware viewport resizing and safe-area insets so the input stays visible above the keyboard
-- [ ] Business rule: a comment can be deleted by its author or by the post's author, and only once it is no longer `pendingSync`
-- [ ] Unit test: `CommentsService.addComment` rejects empty content
-- [ ] Unit test: `CommentsService.addComment` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
-- [ ] Component test: submitting `CommentInputComponent` calls the service with the typed content and clears the field
+- [x] Create `CommentsApiService` (built on `BaseApiService`; `GET /posts/:postId/comments`, `POST /posts/:postId/comments`, `DELETE /comments/:id`)
+- [x] Create `CommentsLocalService` (composed from `SqliteTable<CommentRow>` targeting `comments_cache`)
+- [x] Create `CommentsService` facade: `loadComments(postId)` calls `loadOfflineFirst(...)` and tracks `nextCursor`; register a reconciler with `SyncService` for `entityType: 'comment'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
+- [x] Implement `addComment()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `comments` signal, then call `SyncService.enqueue('comment', 'create', payload, tempId)`
+- [x] Implement `deleteComment()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('comment', 'delete', payload)` (no `tempId`, targets an existing real `id`)
+- [x] Build `CommentsSectionComponent` with relative dates (a small `timeAgo` pipe); show a pending-sync indicator on `CommentTileComponent` when `comment.pendingSync` is `true`
+- [x] Open comment input in an `ion-modal` with the keyboard auto-focused on the input
+- [x] Handle Ionic's keyboard-aware viewport resizing and safe-area insets so the input stays visible above the keyboard
+- [x] Business rule: a comment can be deleted by its author or by the post's author, and only once it is no longer `pendingSync`
+- [x] Unit test: `CommentsService.addComment` rejects empty content
+- [x] Unit test: `CommentsService.addComment` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
+- [x] Component test: submitting `CommentInputComponent` calls the service with the typed content and clears the field
 
 ---
 
