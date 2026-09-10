@@ -157,7 +157,9 @@ export class CommentsService {
    */
   addComment(postId: string, content: string): void {
     if (!content.trim()) {
-      this.state.set({ status: 'error', error: { kind: 'validation', message: 'Comment content is required.' } });
+      // CommentInputComponent already guards before calling here; this is a
+      // defensive check only. Returning silently avoids clobbering a
+      // successfully loaded comment list with a transient validation error.
       return;
     }
     const payload: CreateCommentPayload = { postId, content };
@@ -219,6 +221,15 @@ export class CommentsService {
    * reasoning `PostsService.deletePost` applies.
    */
   deleteComment(id: string): void {
+    const current = this.state();
+    if (current.status === 'success' && current.data.find((c) => c.id === id)?.pendingSync) {
+      // The business rule (enforced by canDelete in CommentsSectionComponent)
+      // is also checked here so the service itself is self-consistent: a
+      // comment with a temp- id does not exist server-side, so sending
+      // DELETE /comments/temp-xxx would get a non-network error and wipe
+      // the loaded comment list from state.
+      return;
+    }
     this.api.deleteComment(id).subscribe({
       next: () => {
         void this.local.delete(id);
@@ -236,13 +247,21 @@ export class CommentsService {
   }
 
   private applyOptimistic(id: string, update: (comment: CommentRow) => CommentRow): void {
-    this.state.update((s) => (s.status === 'success' ? { ...s, data: s.data.map((comment) => (comment.id === id ? update(comment) : comment)) } : s));
-    void this.local.getAll().then((rows) => {
-      const existing = rows.find((row) => row.id === id);
-      if (!existing) {
-        return;
-      }
-      void this.local.upsert(update(existing));
+    // Capture the updated row inside state.update() rather than reading
+    // the full table again afterwards: the row is already in-memory, so a
+    // second getAll() is a needless full-table scan across all cached posts.
+    let updatedRow: CommentRow | undefined;
+    this.state.update((s) => {
+      if (s.status !== 'success') return s;
+      const data = s.data.map((comment) => {
+        if (comment.id !== id) return comment;
+        updatedRow = update(comment);
+        return updatedRow;
+      });
+      return { ...s, data };
     });
+    if (updatedRow) {
+      void this.local.upsert(updatedRow);
+    }
   }
 }
