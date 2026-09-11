@@ -3,12 +3,13 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input } f
 import { Router } from '@angular/router';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { chatbubbleOutline, createOutline, heartOutline, trashOutline } from 'ionicons/icons';
+import { chatbubbleOutline, createOutline, trashOutline } from 'ionicons/icons';
 import { ErrorViewComponent } from '../../../../shared/components/error-view/error-view.component';
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
 import { CachedImageDirective } from '../../../../shared/directives/cached-image.directive';
 import { AuthService } from '../../../auth/auth.service';
 import { CommentsSectionComponent } from '../../../comments/components/comments-section/comments-section.component';
+import { LikeButtonComponent } from '../../../likes/components/like-button/like-button.component';
 import { postHeroId } from '../../post-hero-transition.util';
 import { PostsService } from '../../posts.service';
 
@@ -16,7 +17,6 @@ addIcons({
   'create-outline': createOutline,
   'trash-outline': trashOutline,
   'chatbubble-outline': chatbubbleOutline,
-  'heart-outline': heartOutline,
 });
 
 /**
@@ -49,6 +49,7 @@ addIcons({
     CommentsSectionComponent,
     DatePipe,
     ErrorViewComponent,
+    LikeButtonComponent,
     LoadingIndicatorComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
