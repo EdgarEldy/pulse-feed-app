@@ -909,15 +909,15 @@ Optimistic UI toggle, explicit animation.
 
 ### Tasks
 
-- [ ] Create `LikesApiService` (built on `BaseApiService`; `POST /posts/:postId/likes` to toggle, `GET /posts/:postId/likes/me`)
-- [ ] Create a `LikesService` facade providing per-post state (`isLiked` and `likesCount` signals, `toggle(postId)` method)
-- [ ] Build `LikeButtonComponent`: icon/count change immediately on tap (optimistic), ahead of the server response
-- [ ] Implement `toggle()`: on success, reconcile the optimistic state with the API response; on a `network`-kind `AppError`, keep the optimistic state and call `SyncService.enqueue('like', 'update', { postId })` with no `tempId` and no reconciler registration, since the composite key (`userId`, `postId`) is already known and no server-generated id is ever produced by this endpoint
-- [ ] On any non-`network` error kind (for example the post no longer exists), revert the optimistic state and surface a discreet error message
-- [ ] Build an explicit animation on the heart icon with the Angular Animations API (scale trigger on toggle)
-- [ ] Unit test: `LikesService.toggle` maps the API response to the correct liked/unliked state
-- [ ] Unit test: `LikesService.toggle` on a mocked `network` `AppError` keeps the optimistic state and calls `SyncService.enqueue` without a `tempId`
-- [ ] Component test: tapping `LikeButtonComponent` flips its icon state immediately, then reconciles with the mocked response
+- [x] Create `LikesApiService` (built on `BaseApiService`; `POST /posts/:postId/likes` to toggle, `GET /posts/:postId/likes/me`)
+- [x] Create a `LikesService` facade providing per-post state (`isLiked` and `likesCount` signals, `toggle(postId)` method)
+- [x] Build `LikeButtonComponent`: icon/count change immediately on tap (optimistic), ahead of the server response
+- [x] Implement `toggle()`: on success, reconcile the optimistic state with the API response; on a `network`-kind `AppError`, keep the optimistic state and call `SyncService.enqueue('like', 'update', { postId })` with no `tempId` and no reconciler registration, since the composite key (`userId`, `postId`) is already known and no server-generated id is ever produced by this endpoint
+- [x] On any non-`network` error kind (for example the post no longer exists), revert the optimistic state and surface a discreet error message
+- [x] Build an explicit animation on the heart icon with the Angular Animations API (scale trigger on toggle)
+- [x] Unit test: `LikesService.toggle` maps the API response to the correct liked/unliked state
+- [x] Unit test: `LikesService.toggle` on a mocked `network` `AppError` keeps the optimistic state and calls `SyncService.enqueue` without a `tempId`
+- [x] Component test: tapping `LikeButtonComponent` flips its icon state immediately, then reconciles with the mocked response
 
 ---
 
