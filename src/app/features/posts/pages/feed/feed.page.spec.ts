@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { LikesService } from '../../../../features/likes/likes.service';
 import { PostCardComponent } from '../../../../shared/components/post-card/post-card.component';
 import { AuthService } from '../../../auth/auth.service';
 import { User } from '../../../users/user.model';
@@ -88,6 +89,14 @@ describe('FeedPage', () => {
         provideRouter([]),
         { provide: PostsService, useValue: fakePostsService },
         { provide: AuthService, useValue: new FakeAuthService() },
+        // PostCardComponent now embeds LikeButtonComponent, which injects
+        // LikesService → SyncService → AppDatabaseService → jeep-sqlite WASM.
+        // Stub LikesService here to prevent the SQLite chain from initialising
+        // in a test environment that has no WASM asset.
+        {
+          provide: LikesService,
+          useValue: { states: signal(new Map()), initPost: () => {}, toggle: () => {}, getStatus: () => {} },
+        },
       ],
     }).compileComponents();
 
