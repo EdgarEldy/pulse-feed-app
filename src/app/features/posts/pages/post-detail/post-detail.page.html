@@ -59,16 +59,11 @@
           <ion-icon name="chatbubble-outline" aria-hidden="true"></ion-icon>
           {{ detail.data.commentsCount }}
         </span>
-        <!--
-          A plain, inert count rather than a tappable heart: LikeButtonComponent
-          (feature/likes, a later branch) is what actually toggles a like.
-          Rendering a fake interactive control here would have to be thrown
-          away the moment that branch lands; a static count does not.
-        -->
-        <span class="post-detail__stat">
-          <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
-          {{ detail.data.likesCount }}
-        </span>
+        <app-like-button
+          [postId]="detail.data.id"
+          [initialLikesCount]="detail.data.likesCount"
+          [initialIsLiked]="detail.data.isLikedByMe"
+        />
       </div>
 
       <app-comments-section
