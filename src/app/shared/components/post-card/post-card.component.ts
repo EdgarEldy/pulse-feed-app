@@ -6,6 +6,7 @@ import { addIcons } from 'ionicons';
 import { createOutline, syncOutline, trashOutline } from 'ionicons/icons';
 import { PostRow } from '../../../features/posts/post.model';
 import { postHeroId } from '../../../features/posts/post-hero-transition.util';
+import { LikeButtonComponent } from '../../../features/likes/components/like-button/like-button.component';
 import { CachedImageDirective } from '../../directives/cached-image.directive';
 import { AppCardComponent } from '../app-card/app-card.component';
 
@@ -40,7 +41,7 @@ const postCardEnterAnimation: AnimationTriggerMetadata = trigger('postCardEnter'
 @Component({
   selector: 'app-post-card',
   standalone: true,
-  imports: [AppCardComponent, CachedImageDirective, DatePipe, IonBadge, IonButton, IonIcon],
+  imports: [AppCardComponent, CachedImageDirective, DatePipe, IonBadge, IonButton, IonIcon, LikeButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.scss',
