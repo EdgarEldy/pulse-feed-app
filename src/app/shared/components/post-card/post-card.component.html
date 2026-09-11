@@ -31,20 +31,27 @@
     />
   }
 
-  @if (canManage()) {
-    <div class="post-card__actions">
-      <ion-button fill="clear" size="small" aria-label="Edit post" (click)="onEdit(); $event.stopPropagation()">
-        <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
-      </ion-button>
-      <ion-button
-        fill="clear"
-        size="small"
-        color="danger"
-        aria-label="Delete post"
-        (click)="onDelete(); $event.stopPropagation()"
-      >
-        <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
-      </ion-button>
-    </div>
-  }
+  <div class="post-card__footer">
+    <app-like-button
+      [postId]="post().id"
+      [initialLikesCount]="post().likesCount"
+      [initialIsLiked]="post().isLikedByMe"
+    />
+    @if (canManage()) {
+      <div class="post-card__actions">
+        <ion-button fill="clear" size="small" aria-label="Edit post" (click)="onEdit(); $event.stopPropagation()">
+          <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          size="small"
+          color="danger"
+          aria-label="Delete post"
+          (click)="onDelete(); $event.stopPropagation()"
+        >
+          <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
+        </ion-button>
+      </div>
+    }
+  </div>
 </app-card>
