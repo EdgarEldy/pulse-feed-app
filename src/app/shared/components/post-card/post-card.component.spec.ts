@@ -1,7 +1,9 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { LikesService } from '../../../features/likes/likes.service';
 import { PostRow } from '../../../features/posts/post.model';
 import { PostCardComponent } from './post-card.component';
 
@@ -29,7 +31,19 @@ describe('PostCardComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [PostCardComponent],
-      providers: [provideIonicAngular(), provideNoopAnimations()],
+      providers: [
+        provideIonicAngular(),
+        provideNoopAnimations(),
+        {
+          provide: LikesService,
+          useValue: {
+            states: signal(new Map()),
+            initPost: () => {},
+            toggle: () => {},
+            getStatus: () => {},
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PostCardComponent);
