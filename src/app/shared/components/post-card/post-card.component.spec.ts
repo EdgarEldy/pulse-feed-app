@@ -1,9 +1,9 @@
-import { signal } from '@angular/core';
+import { Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideIonicAngular } from '@ionic/angular/standalone';
-import { LikesService } from '../../../features/likes/likes.service';
+import { LikeState, LikesService } from '../../../features/likes/likes.service';
 import { PostRow } from '../../../features/posts/post.model';
 import { PostCardComponent } from './post-card.component';
 
@@ -29,20 +29,15 @@ describe('PostCardComponent', () => {
     // author avatar/post image the moment change detection runs.
     spyOn(window, 'fetch').and.rejectWith(new Error('no network in tests'));
 
+    const fakeLikesService = jasmine.createSpyObj<LikesService>('LikesService', ['initPost', 'toggle', 'getStatus']);
+    (fakeLikesService as unknown as { states: Signal<Map<string, LikeState>> }).states = signal(new Map<string, LikeState>());
+
     await TestBed.configureTestingModule({
       imports: [PostCardComponent],
       providers: [
         provideIonicAngular(),
         provideNoopAnimations(),
-        {
-          provide: LikesService,
-          useValue: {
-            states: signal(new Map()),
-            initPost: () => {},
-            toggle: () => {},
-            getStatus: () => {},
-          },
-        },
+        { provide: LikesService, useValue: fakeLikesService },
       ],
     }).compileComponents();
 
