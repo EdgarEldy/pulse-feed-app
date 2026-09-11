@@ -28,6 +28,10 @@ const heartBeatAnimation: AnimationTriggerMetadata = trigger('heartBeat', [
     animate('100ms ease-in', style({ transform: 'scale(1.4)' })),
     animate('100ms ease-out', style({ transform: 'scale(1)' })),
   ]),
+  transition('true => false', [
+    animate('80ms ease-out', style({ transform: 'scale(0.85)' })),
+    animate('80ms ease-in', style({ transform: 'scale(1)' })),
+  ]),
 ]);
 
 @Component({
