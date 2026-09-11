@@ -1,4 +1,5 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
+import { finalize } from 'rxjs';
 import { AppError } from '../../core/models/app-error';
 import { SyncService } from '../../core/offline/sync.service';
 import { LikesApiService } from './likes-api.service';
@@ -41,6 +42,9 @@ export class LikesService {
   private readonly sync = inject(SyncService);
 
   private readonly likeStates = signal(new Map<string, LikeState>());
+  // Tracks posts with an in-flight toggle so a second tap is ignored while
+  // the first request is still pending, preventing stale-snapshot reverts.
+  private readonly inFlight = new Set<string>();
 
   /** Read-only view of per-post like state, keyed by `postId`. */
   readonly states: Signal<Map<string, LikeState>> = this.likeStates.asReadonly();
@@ -82,19 +86,26 @@ export class LikesService {
    */
   toggle(postId: string): void {
     const before = this.likeStates().get(postId);
-    if (!before) {
+    // Ignore a second tap while the first request is still in-flight: without
+    // this guard, the error-revert path would restore the first call's
+    // optimistic snapshot rather than the true original state.
+    if (!before || this.inFlight.has(postId)) {
       return;
     }
+    this.inFlight.add(postId);
 
-    // Step 1 — optimistic flip.
+    // Step 1 — optimistic flip. Math.max(0, ...) prevents a backend count
+    // inconsistency from producing a negative displayed count.
     const optimistic: LikeState = {
       isLiked: !before.isLiked,
-      likesCount: before.isLiked ? before.likesCount - 1 : before.likesCount + 1,
+      likesCount: before.isLiked ? Math.max(0, before.likesCount - 1) : before.likesCount + 1,
     };
     this.applyState(postId, optimistic);
 
     // Step 2 & 3 — issue the request and reconcile.
-    this.api.toggle(postId).subscribe({
+    this.api.toggle(postId).pipe(
+      finalize(() => this.inFlight.delete(postId)),
+    ).subscribe({
       next: ({ liked, likesCount }) => {
         // Server's answer is authoritative: replace the optimistic guess.
         this.applyState(postId, { isLiked: liked, likesCount });
