@@ -56,6 +56,13 @@
   object-fit: cover;
 }
 
+.post-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--app-space-xs);
+}
+
 .post-card__actions {
   display: flex;
   justify-content: flex-end;
