@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { LikeState, LikesService } from '../../likes.service';
+import { provideTestTranslations } from '../../../../testing/translate-testing';
 import { LikeButtonComponent } from './like-button.component';
 
 class FakeLikesService {
@@ -45,6 +46,7 @@ describe('LikeButtonComponent', () => {
       providers: [
         provideIonicAngular(),
         provideNoopAnimations(),
+        provideTestTranslations(),
         { provide: LikesService, useValue: fakeLikesService },
       ],
     })
@@ -135,7 +137,7 @@ describe('LikeButtonComponent', () => {
       fixture.detectChanges();
 
       const span = fixture.debugElement.query(By.css('span'));
-      expect(span.nativeElement.textContent.trim()).toBe('42');
+      expect(span.nativeElement.textContent.trim()).toBe('42 likes');
     });
 
     it('falls back to initialLikesCount when no state has been seeded', () => {
@@ -145,7 +147,7 @@ describe('LikeButtonComponent', () => {
       fixture.detectChanges();
 
       const span = fixture.debugElement.query(By.css('span'));
-      expect(span.nativeElement.textContent.trim()).toBe('7');
+      expect(span.nativeElement.textContent.trim()).toBe('7 likes');
     });
   });
 });
