@@ -14,7 +14,7 @@
     @if (post().pendingSync) {
       <ion-badge class="post-card__pending" color="medium">
         <ion-icon name="sync-outline" aria-hidden="true"></ion-icon>
-        Syncing
+        {{ 'posts.syncingBadge' | translate }}
       </ion-badge>
     }
   </div>
@@ -39,14 +39,14 @@
     />
     @if (canManage()) {
       <div class="post-card__actions">
-        <ion-button fill="clear" size="small" aria-label="Edit post" (click)="onEdit(); $event.stopPropagation()">
+        <ion-button fill="clear" size="small" [attr.aria-label]="'posts.editAction' | translate" (click)="onEdit(); $event.stopPropagation()">
           <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
         </ion-button>
         <ion-button
           fill="clear"
           size="small"
           color="danger"
-          aria-label="Delete post"
+          [attr.aria-label]="'posts.deleteAction' | translate"
           (click)="onDelete(); $event.stopPropagation()"
         >
           <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
