@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject, firstValueFrom, of, throwError } from 'rxjs';
 import { AppError } from '../../core/models/app-error';
 import { PendingWriteReconciler, SyncService } from '../../core/offline/sync.service';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../users/user.model';
 import { CreatePostPayload, PostsApiService, UpdatePostPayload } from './posts-api.service';
@@ -90,6 +91,7 @@ describe('PostsService', () => {
         { provide: PostsLocalService, useValue: fakeLocal },
         { provide: AuthService, useValue: new FakeAuthService() },
         { provide: SyncService, useValue: fakeSync },
+        provideTestTranslations(),
       ],
     });
 
