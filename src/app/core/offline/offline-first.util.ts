@@ -1,7 +1,23 @@
-import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap, timeout } from 'rxjs';
 import { AppError } from '../models/app-error';
 
 export type OfflineFirstResult<T> = { status: 'success'; data: T } | { status: 'error'; error: AppError };
+
+/**
+ * A write-through cache write is a promise this function does not control
+ * (a `*LocalService` call bottoming out in `AppDatabaseService.ready()`),
+ * and some genuinely never settle rather than rejecting: a WASM
+ * initialization failure inside `@capacitor-community/sqlite`'s web store
+ * (`jeep-sqlite`) can abort past the point where the promise it returned
+ * would ever resolve or reject, discovered by actually driving this app in
+ * a real browser end to end rather than a unit test's faked
+ * `AppDatabaseService`. Without this timeout, that single hung write
+ * silently stalls this entire function forever, never emitting `success`
+ * even though `remote()` already returned real data. 5 seconds is
+ * generous for a local SQLite write while still failing well within a
+ * screen a user would call "stuck".
+ */
+const CACHE_WRITE_TIMEOUT_MS = 5000;
 
 /**
  * The remote-then-cache-fallback-then-write-through sequence every
@@ -22,6 +38,7 @@ export function loadOfflineFirst<T>(options: {
   return options.remote().pipe(
     switchMap((data) =>
       from(Promise.resolve(options.cacheWrite(data))).pipe(
+        timeout(CACHE_WRITE_TIMEOUT_MS),
         map(() => ({ status: 'success', data }) as const),
         // A fresh response already arrived; whether it also got cached
         // for later offline use is a separate concern from whether this
@@ -29,6 +46,9 @@ export function loadOfflineFirst<T>(options: {
         // catchError below (which assumes it only ever sees an AppError
         // from remote()) would report a cache problem as if remote() had
         // itself failed, discarding data that was actually fetched fine.
+        // Also where a stuck-forever write (see CACHE_WRITE_TIMEOUT_MS
+        // above) gets treated the exact same way as one that rejects
+        // outright, rather than as a distinct case to handle.
         catchError(() => of({ status: 'success', data }) as Observable<OfflineFirstResult<T>>),
       ),
     ),
