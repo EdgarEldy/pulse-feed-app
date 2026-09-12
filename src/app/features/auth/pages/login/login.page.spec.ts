@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { AuthService, AuthState } from '../../auth.service';
+import { provideTestTranslations } from '../../../../testing/translate-testing';
 import { LoginPage } from './login.page';
 
 class FakeAuthService {
@@ -31,7 +32,12 @@ describe('LoginPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
-      providers: [provideIonicAngular(), provideRouter([]), { provide: AuthService, useValue: fakeAuthService }],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        provideTestTranslations(),
+        { provide: AuthService, useValue: fakeAuthService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginPage);
