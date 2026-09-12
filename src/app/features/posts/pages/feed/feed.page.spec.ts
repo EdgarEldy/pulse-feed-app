@@ -6,6 +6,7 @@ import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { LikeState, LikesService } from '../../../../features/likes/likes.service';
 import { PostCardComponent } from '../../../../shared/components/post-card/post-card.component';
+import { provideTestTranslations } from '../../../../testing/translate-testing';
 import { AuthService } from '../../../auth/auth.service';
 import { User } from '../../../users/user.model';
 import { PostRow } from '../../post.model';
@@ -87,6 +88,7 @@ describe('FeedPage', () => {
         provideIonicAngular(),
         provideNoopAnimations(),
         provideRouter([]),
+        provideTestTranslations(),
         { provide: PostsService, useValue: fakePostsService },
         { provide: AuthService, useValue: new FakeAuthService() },
         // PostCardComponent now embeds LikeButtonComponent, which injects
