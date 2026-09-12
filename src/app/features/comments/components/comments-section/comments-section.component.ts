@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, input } from '@angu
 import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chatbubbleOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ErrorViewComponent } from '../../../../shared/components/error-view/error-view.component';
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
 import { AuthService } from '../../../auth/auth.service';
@@ -21,6 +22,7 @@ addIcons({ 'chatbubble-outline': chatbubbleOutline });
     LoadingIndicatorComponent,
     ErrorViewComponent,
     CommentTileComponent,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './comments-section.component.html',
