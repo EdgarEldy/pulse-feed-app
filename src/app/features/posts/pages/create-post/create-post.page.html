@@ -1,35 +1,35 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>New post</ion-title>
+    <ion-title>{{ 'createPost.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <ion-item>
-      <ion-label position="stacked">Title</ion-label>
+      <ion-label position="stacked">{{ 'createPost.titleLabel' | translate }}</ion-label>
       <ion-input type="text" formControlName="title" [readonly]="isUploading()"></ion-input>
     </ion-item>
     @if (titleControl.invalid && (titleControl.touched || submitted())) {
-      <p class="field-error" role="alert">Title is required.</p>
+      <p class="field-error" role="alert">{{ 'createPost.titleRequired' | translate }}</p>
     }
 
     <ion-item>
-      <ion-label position="stacked">Content</ion-label>
+      <ion-label position="stacked">{{ 'createPost.contentLabel' | translate }}</ion-label>
       <ion-textarea formControlName="content" autoGrow="true" [readonly]="isUploading()"></ion-textarea>
     </ion-item>
     @if (contentControl.invalid && (contentControl.touched || submitted())) {
-      <p class="field-error" role="alert">Content is required.</p>
+      <p class="field-error" role="alert">{{ 'createPost.contentRequired' | translate }}</p>
     }
 
     <div class="create-post__image">
       @if (pickedImageUri()) {
         <div class="create-post__image-preview">
-          <img [src]="pickedImageUri()" alt="Preview of the image picked for this post" />
+          <img [src]="pickedImageUri()" [alt]="'createPost.photoPreviewAlt' | translate" />
           <ion-button
             fill="clear"
             shape="round"
-            aria-label="Remove picked photo"
+            [attr.aria-label]="'createPost.removePhoto' | translate"
             [disabled]="isUploading()"
             (click)="removeImage()"
           >
@@ -39,12 +39,11 @@
       } @else {
         <ion-button
           fill="outline"
-          aria-label="Add a photo to this post"
           [disabled]="isUploading()"
           (click)="pickImage()"
         >
           <ion-icon slot="start" name="image-outline" aria-hidden="true"></ion-icon>
-          Add photo
+          {{ 'createPost.addPhoto' | translate }}
         </ion-button>
       }
     </div>
@@ -52,12 +51,12 @@
     @if (isUploading()) {
       <ion-progress-bar
         [value]="createProgress()! / 100"
-        [attr.aria-label]="'Publishing post, ' + createProgress() + ' percent complete'"
+        [attr.aria-label]="'createPost.uploadProgress' | translate: { percent: createProgress() }"
       ></ion-progress-bar>
     }
 
     <ion-button expand="block" type="submit" [disabled]="!canSubmit()">
-      {{ isUploading() ? 'Publishing…' : 'Publish' }}
+      {{ (isUploading() ? 'createPost.submitting' : 'createPost.submit') | translate }}
     </ion-button>
   </form>
 
