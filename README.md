@@ -928,14 +928,14 @@ App-wide accessibility and i18n pass, full test suite, app icons/splash, and the
 
 ### Tasks
 
-- [ ] Audit the app with axe DevTools or Lighthouse's accessibility pass; fix any remaining gaps across all pages
-- [ ] Extract every hardcoded string built so far into `en.json`/`fr.json`, verify runtime language switching end to end
-- [ ] Use `@ngx-translate/core`'s ICU plural syntax for at least the comments/likes counters (for example `{count, plural, =0 {no comments} =1 {1 comment} other {# comments}}`), so the pluralization concept from the Concept Map is actually exercised, not just declared
-- [ ] Fill any remaining unit/component test coverage gaps across prior branches
-- [ ] One end-to-end Playwright test: sign up, create a post, like it, comment on it
-- [ ] Generate app icons and splash screen (`@capacitor/assets`)
-- [ ] Extend `ci.yml`: lint -> test -> build web -> `npx cap sync` on every PR to `master`
-- [ ] Document Android keystore signing and iOS certificate/provisioning profile setup for a release build
+- [x] Audit the app with axe DevTools or Lighthouse's accessibility pass; fix any remaining gaps across all pages
+- [x] Extract every hardcoded string built so far into `en.json`/`fr.json`, verify runtime language switching end to end
+- [x] Use `@ngx-translate/core`'s ICU plural syntax for at least the comments/likes counters (for example `{count, plural, =0 {no comments} =1 {1 comment} other {# comments}}`), so the pluralization concept from the Concept Map is actually exercised, not just declared
+- [x] Fill any remaining unit/component test coverage gaps across prior branches
+- [x] One end-to-end Playwright test: sign up, create a post, like it, comment on it
+- [x] Generate app icons and splash screen (`@capacitor/assets`)
+- [x] Extend `ci.yml`: lint -> test -> build web -> `npx cap sync` on every PR to `master`
+- [x] Document Android keystore signing and iOS certificate/provisioning profile setup for a release build
 
 ---
 
