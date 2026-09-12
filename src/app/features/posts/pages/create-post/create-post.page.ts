@@ -18,6 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { closeCircle, imageOutline } from 'ionicons/icons';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PostsService } from '../../posts.service';
 
 addIcons({ 'image-outline': imageOutline, 'close-circle': closeCircle });
@@ -52,6 +53,7 @@ addIcons({ 'image-outline': imageOutline, 'close-circle': closeCircle });
     IonIcon,
     IonProgressBar,
     IonToast,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './create-post.page.html',
@@ -61,6 +63,7 @@ export class CreatePostPage {
   private readonly postsService = inject(PostsService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required]],
@@ -188,7 +191,7 @@ export class CreatePostPage {
       return;
     }
     if (!photo.webPath) {
-      this.toastMessage.set('Could not read the picked photo.');
+      this.toastMessage.set(this.translate.instant('createPost.photoReadError'));
       this.toastOpen.set(true);
       return;
     }
