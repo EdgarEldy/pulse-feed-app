@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { apiEndpoints } from '../../core/http/api-endpoints';
 import { environment } from '../../../environments/environment';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { AuthApiService } from './auth-api.service';
 
 const sampleUserDto = {
@@ -19,7 +20,7 @@ describe('AuthApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTestTranslations()],
     });
 
     service = TestBed.inject(AuthApiService);
