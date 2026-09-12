@@ -1,5 +1,6 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, from, of, shareReplay, switchMap, throwError } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { AppError } from '../../core/models/app-error';
 import { SecureTokenStorageService } from '../../core/storage/secure-token-storage.service';
 import { User } from '../users/user.model';
@@ -47,6 +48,7 @@ export type AuthState = { status: 'idle' } | { status: 'loading' } | { status: '
 export class AuthService {
   private readonly api = inject(AuthApiService);
   private readonly tokenStorage = inject(SecureTokenStorageService);
+  private readonly translate = inject(TranslateService);
 
   private readonly currentUserSignal = signal<User | null>(null);
   readonly currentUser: Signal<User | null> = this.currentUserSignal.asReadonly();
@@ -267,7 +269,7 @@ export class AuthService {
       switchMap((refreshToken) => {
         if (!refreshToken) {
           return throwError(
-            () => ({ kind: 'unauthorized', message: 'No refresh token available.' }) as AppError,
+            () => ({ kind: 'unauthorized', message: this.translate.instant('auth.noRefreshToken') }) as AppError,
           );
         }
         return this.api
