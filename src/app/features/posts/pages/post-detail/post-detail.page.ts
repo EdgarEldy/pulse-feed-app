@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chatbubbleOutline, createOutline, trashOutline } from 'ionicons/icons';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ErrorViewComponent } from '../../../../shared/components/error-view/error-view.component';
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
 import { CachedImageDirective } from '../../../../shared/directives/cached-image.directive';
@@ -51,6 +52,7 @@ addIcons({
     ErrorViewComponent,
     LikeButtonComponent,
     LoadingIndicatorComponent,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './post-detail.page.html',
@@ -60,6 +62,7 @@ export class PostDetailPage {
   private readonly postsService = inject(PostsService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   /**
    * A signal input rather than a plain `@Input()`, matching `ProfilePage`'s
@@ -107,7 +110,7 @@ export class PostDetailPage {
    * nowhere, so the button still gives honest, visible feedback.
    */
   onEdit(): void {
-    console.info(`Editing post ${this.id()} is not available yet.`);
+    console.info(this.translate.instant('posts.editUnavailable', { postId: this.id() }));
   }
 
   /**
