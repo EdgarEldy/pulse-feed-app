@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * Converts an ISO 8601 timestamp into a human-readable relative string
@@ -9,6 +10,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  * the displayed label stays current as real time advances. To avoid redundant
  * recomputation, the result is cached internally and returned unchanged as
  * long as the displayed label would not yet differ (coarse time buckets).
+ * The cache key includes the active language, so a language switch still
+ * recomputes the label instead of serving a stale-language string.
  */
 @Pipe({
   name: 'timeAgo',
@@ -16,8 +19,11 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class TimeAgoPipe implements PipeTransform {
+  private readonly translate = inject(TranslateService);
+
   private lastInput = '';
   private lastBucket = -1;
+  private lastLang = '';
   private lastResult = '';
 
   transform(value: string): string {
@@ -25,11 +31,13 @@ export class TimeAgoPipe implements PipeTransform {
     const diffMs = Date.now() - new Date(value).getTime();
     const diffSec = Math.floor(diffMs / 1000);
     const bucket = this.bucket(diffSec);
-    if (value === this.lastInput && bucket === this.lastBucket) {
+    const lang = this.translate.currentLang() ?? '';
+    if (value === this.lastInput && bucket === this.lastBucket && lang === this.lastLang) {
       return this.lastResult;
     }
     this.lastInput = value;
     this.lastBucket = bucket;
+    this.lastLang = lang;
     this.lastResult = this.compute(diffSec);
     return this.lastResult;
   }
@@ -45,18 +53,18 @@ export class TimeAgoPipe implements PipeTransform {
   }
 
   private compute(diffSec: number): string {
-    if (diffSec < 60) return 'just now';
+    if (diffSec < 60) return this.translate.instant('timeAgo.justNow');
     const diffMin = Math.floor(diffSec / 60);
-    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffMin < 60) return this.translate.instant('timeAgo.minutes', { count: diffMin });
     const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffHours < 24) return this.translate.instant('timeAgo.hours', { count: diffHours });
     const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 7) return this.translate.instant('timeAgo.days', { count: diffDays });
     const diffWeeks = Math.floor(diffDays / 7);
-    if (diffWeeks < 5) return `${diffWeeks}w ago`;
+    if (diffWeeks < 5) return this.translate.instant('timeAgo.weeks', { count: diffWeeks });
     const diffMonths = Math.floor(diffDays / 30);
-    if (diffMonths < 12) return `${diffMonths}mo ago`;
+    if (diffMonths < 12) return this.translate.instant('timeAgo.months', { count: diffMonths });
     const diffYears = Math.floor(diffDays / 365);
-    return `${diffYears}yr ago`;
+    return this.translate.instant('timeAgo.years', { count: diffYears });
   }
 }
