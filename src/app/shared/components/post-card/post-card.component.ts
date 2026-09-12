@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { IonBadge, IonButton, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { createOutline, syncOutline, trashOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { PostRow } from '../../../features/posts/post.model';
 import { postHeroId } from '../../../features/posts/post-hero-transition.util';
 import { LikeButtonComponent } from '../../../features/likes/components/like-button/like-button.component';
@@ -41,7 +42,7 @@ const postCardEnterAnimation: AnimationTriggerMetadata = trigger('postCardEnter'
 @Component({
   selector: 'app-post-card',
   standalone: true,
-  imports: [AppCardComponent, CachedImageDirective, DatePipe, IonBadge, IonButton, IonIcon, LikeButtonComponent],
+  imports: [AppCardComponent, CachedImageDirective, DatePipe, IonBadge, IonButton, IonIcon, LikeButtonComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './post-card.component.html',
   styleUrl: './post-card.component.scss',
