@@ -75,6 +75,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `@capacitor/filesystem` | File caching | Caches downloaded post/avatar images to disk so they render instantly and remain available offline. |
 | `@ngx-translate/core` | Internationalization | Loads translation JSON files and swaps the active language at runtime, without a full app rebuild per locale. |
 | `zod` | Runtime validation | Validates API responses at the HTTP boundary, so a malformed payload becomes a typed error instead of a silent `undefined`. |
+| `@capacitor/assets` | App icon/splash generation | Generates every platform-specific app icon and splash screen size from one source image, run as a one-off CLI step rather than a runtime dependency. |
 | `@capacitor-community/google-signin` | Social login (bonus) | Drives the native Google account picker and returns an ID token to exchange with the backend. |
 | `@capacitor/push-notifications` | Push notifications (bonus) | Registers the device for push (via FCM/APNs under the hood), receives the device push token, and delivers foreground/background messages. |
 | `@capacitor/local-notifications` | Local notification display (bonus) | Renders a system notification when a push message arrives while the app is in the foreground. |
