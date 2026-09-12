@@ -1,1 +1,143 @@
-{}
+{
+  "common": {
+    "retry": "Réessayer",
+    "avatarAlt": "Avatar de {{name}}"
+  },
+  "errors": {
+    "network": "Vous êtes hors ligne. Vérifiez votre connexion et réessayez.",
+    "unauthorized": "Votre session a expiré. Veuillez vous reconnecter.",
+    "server": "Une erreur est survenue de notre côté. Veuillez réessayer sous peu.",
+    "cache": "Impossible de charger les données enregistrées sur cet appareil.",
+    "validation": "Le serveur a renvoyé une réponse inattendue. Veuillez réessayer."
+  },
+  "httpError": {
+    "noConnection": "Aucune connexion au serveur.",
+    "sessionExpired": "Session expirée.",
+    "unexpectedServer": "Erreur serveur inattendue."
+  },
+  "offlineBanner": {
+    "message": "Vous êtes hors ligne. Affichage du contenu enregistré.",
+    "dismiss": "Fermer la notification hors ligne"
+  },
+  "loadingIndicator": {
+    "default": "Chargement"
+  },
+  "auth": {
+    "fields": {
+      "email": {
+        "label": "E-mail",
+        "required": "L'e-mail est requis.",
+        "invalid": "Saisissez une adresse e-mail valide."
+      },
+      "password": {
+        "label": "Mot de passe",
+        "required": "Le mot de passe est requis.",
+        "minLength": "Le mot de passe doit contenir au moins 8 caractères."
+      },
+      "displayName": {
+        "label": "Nom d'affichage",
+        "required": "Le nom d'affichage est requis.",
+        "minLength": "Le nom d'affichage doit contenir au moins 2 caractères."
+      }
+    },
+    "formError": "Veuillez corriger les champs en surbrillance avant de continuer.",
+    "noRefreshToken": "Aucun jeton de rafraîchissement disponible.",
+    "login": {
+      "title": "Connexion",
+      "submit": "Se connecter",
+      "submitting": "Connexion en cours…",
+      "switchPrompt": "Vous n'avez pas de compte ?",
+      "switchAction": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "submit": "Créer le compte",
+      "submitting": "Création du compte…",
+      "switchPrompt": "Vous avez déjà un compte ?",
+      "switchAction": "Se connecter"
+    }
+  },
+  "feed": {
+    "title": "Fil d'actualité",
+    "loading": "Chargement des publications",
+    "empty": "Aucune publication pour le moment. Soyez le premier à partager quelque chose.",
+    "createPost": "Créer une publication"
+  },
+  "posts": {
+    "editAction": "Modifier la publication",
+    "deleteAction": "Supprimer la publication",
+    "syncingBadge": "Synchronisation",
+    "editUnavailable": "La modification de la publication {{postId}} n'est pas encore disponible."
+  },
+  "postDetail": {
+    "title": "Publication",
+    "loading": "Chargement de la publication"
+  },
+  "createPost": {
+    "title": "Nouvelle publication",
+    "titleLabel": "Titre",
+    "titleRequired": "Le titre est requis.",
+    "contentLabel": "Contenu",
+    "contentRequired": "Le contenu est requis.",
+    "addPhoto": "Ajouter une photo",
+    "removePhoto": "Retirer la photo sélectionnée",
+    "photoPreviewAlt": "Aperçu de l'image choisie pour cette publication",
+    "uploadProgress": "Publication en cours, {{percent}} pour cent terminé",
+    "submit": "Publier",
+    "submitting": "Publication en cours…",
+    "photoReadError": "Impossible de lire la photo sélectionnée.",
+    "validationRequired": "Le titre et le contenu sont requis."
+  },
+  "comments": {
+    "title": "Commentaires",
+    "empty": "Aucun commentaire pour le moment. Soyez le premier !",
+    "loadMore": "Charger plus",
+    "add": "Ajouter un commentaire",
+    "count": "{count, plural, =0 {Aucun commentaire} =1 {1 commentaire} other {# commentaires}}",
+    "pendingSync": "Synchronisation en attente",
+    "delete": "Supprimer le commentaire",
+    "input": {
+      "title": "Ajouter un commentaire",
+      "placeholder": "Écrivez un commentaire…",
+      "submit": "Publier",
+      "close": "Fermer"
+    }
+  },
+  "likes": {
+    "like": "Aimer cette publication",
+    "unlike": "Ne plus aimer cette publication",
+    "count": "{count, plural, =0 {Aucun j'aime} =1 {1 j'aime} other {# j'aime}}"
+  },
+  "profile": {
+    "title": "Profil",
+    "loading": "Chargement du profil",
+    "postsHeading": "Publications",
+    "postsPlaceholder": "Publications à venir."
+  },
+  "editProfile": {
+    "title": "Modifier le profil",
+    "currentAvatarAlt": "Votre avatar actuel",
+    "noAvatar": "Aucun avatar défini",
+    "offlineNotice": "Vous êtes hors ligne. La modification du profil nécessite une connexion.",
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "profileUpdated": "Profil mis à jour.",
+    "avatarUpdated": "Avatar mis à jour.",
+    "language": "Langue",
+    "languageEnglish": "Anglais",
+    "languageFrench": "Français"
+  },
+  "avatarPicker": {
+    "pick": "Prendre ou choisir une nouvelle photo de profil",
+    "uploadProgress": "Téléversement de l'avatar, {{progress}} pour cent terminé"
+  },
+  "timeAgo": {
+    "justNow": "à l'instant",
+    "minutes": "il y a {{count}} min",
+    "hours": "il y a {{count}} h",
+    "days": "il y a {{count}} j",
+    "weeks": "il y a {{count}} sem",
+    "months": "il y a {{count}} mois",
+    "years": "il y a {{count}} an"
+  }
+}

@@ -1,1 +1,143 @@
-{}
+{
+  "common": {
+    "retry": "Try again",
+    "avatarAlt": "{{name}}'s avatar"
+  },
+  "errors": {
+    "network": "You're offline. Check your connection and try again.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "server": "Something went wrong on our end. Please try again shortly.",
+    "cache": "We couldn't load the saved data on this device.",
+    "validation": "The server sent back something unexpected. Please try again."
+  },
+  "httpError": {
+    "noConnection": "No connection to the server.",
+    "sessionExpired": "Session expired.",
+    "unexpectedServer": "Unexpected server error."
+  },
+  "offlineBanner": {
+    "message": "You're offline. Showing saved content.",
+    "dismiss": "Dismiss offline notice"
+  },
+  "loadingIndicator": {
+    "default": "Loading"
+  },
+  "auth": {
+    "fields": {
+      "email": {
+        "label": "Email",
+        "required": "Email is required.",
+        "invalid": "Enter a valid email address."
+      },
+      "password": {
+        "label": "Password",
+        "required": "Password is required.",
+        "minLength": "Password must be at least 8 characters."
+      },
+      "displayName": {
+        "label": "Display name",
+        "required": "Display name is required.",
+        "minLength": "Display name must be at least 2 characters."
+      }
+    },
+    "formError": "Please fix the highlighted fields before continuing.",
+    "noRefreshToken": "No refresh token available.",
+    "login": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "switchPrompt": "Don't have an account?",
+      "switchAction": "Create one"
+    },
+    "register": {
+      "title": "Create account",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "switchPrompt": "Already have an account?",
+      "switchAction": "Sign in"
+    }
+  },
+  "feed": {
+    "title": "Feed",
+    "loading": "Loading posts",
+    "empty": "No posts yet. Be the first to share something.",
+    "createPost": "Create post"
+  },
+  "posts": {
+    "editAction": "Edit post",
+    "deleteAction": "Delete post",
+    "syncingBadge": "Syncing",
+    "editUnavailable": "Editing post {{postId}} is not available yet."
+  },
+  "postDetail": {
+    "title": "Post",
+    "loading": "Loading post"
+  },
+  "createPost": {
+    "title": "New post",
+    "titleLabel": "Title",
+    "titleRequired": "Title is required.",
+    "contentLabel": "Content",
+    "contentRequired": "Content is required.",
+    "addPhoto": "Add photo",
+    "removePhoto": "Remove picked photo",
+    "photoPreviewAlt": "Preview of the image picked for this post",
+    "uploadProgress": "Publishing post, {{percent}} percent complete",
+    "submit": "Publish",
+    "submitting": "Publishing…",
+    "photoReadError": "Could not read the picked photo.",
+    "validationRequired": "Title and content are required."
+  },
+  "comments": {
+    "title": "Comments",
+    "empty": "No comments yet. Be the first!",
+    "loadMore": "Load more",
+    "add": "Add comment",
+    "count": "{count, plural, =0 {No comments} =1 {1 comment} other {# comments}}",
+    "pendingSync": "Pending sync",
+    "delete": "Delete comment",
+    "input": {
+      "title": "Add comment",
+      "placeholder": "Write a comment…",
+      "submit": "Post",
+      "close": "Close"
+    }
+  },
+  "likes": {
+    "like": "Like this post",
+    "unlike": "Unlike this post",
+    "count": "{count, plural, =0 {no likes} =1 {1 like} other {# likes}}"
+  },
+  "profile": {
+    "title": "Profile",
+    "loading": "Loading profile",
+    "postsHeading": "Posts",
+    "postsPlaceholder": "Posts coming soon."
+  },
+  "editProfile": {
+    "title": "Edit profile",
+    "currentAvatarAlt": "Your current avatar",
+    "noAvatar": "No avatar set yet",
+    "offlineNotice": "You're offline. Editing your profile requires a connection.",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "profileUpdated": "Profile updated.",
+    "avatarUpdated": "Avatar updated.",
+    "language": "Language",
+    "languageEnglish": "English",
+    "languageFrench": "Français"
+  },
+  "avatarPicker": {
+    "pick": "Take or choose a new avatar photo",
+    "uploadProgress": "Uploading avatar, {{progress}} percent complete"
+  },
+  "timeAgo": {
+    "justNow": "just now",
+    "minutes": "{{count}}m ago",
+    "hours": "{{count}}h ago",
+    "days": "{{count}}d ago",
+    "weeks": "{{count}}w ago",
+    "months": "{{count}}mo ago",
+    "years": "{{count}}yr ago"
+  }
+}
