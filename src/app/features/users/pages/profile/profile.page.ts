@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angu
 import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { personCircleOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ErrorViewComponent } from '../../../../shared/components/error-view/error-view.component';
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
 import { UsersService } from '../../users.service';
@@ -25,7 +26,7 @@ addIcons({ 'person-circle-outline': personCircleOutline });
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, LoadingIndicatorComponent, ErrorViewComponent],
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, LoadingIndicatorComponent, ErrorViewComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.page.html',
   styleUrl: './profile.page.scss',
