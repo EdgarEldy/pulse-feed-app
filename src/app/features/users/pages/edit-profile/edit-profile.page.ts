@@ -8,12 +8,16 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
   IonToast,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import type { SelectCustomEvent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { personCircleOutline } from 'ionicons/icons';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../auth/auth.service';
 import { ConnectivityService } from '../../../../core/network/connectivity.service';
 import { AvatarPickerComponent } from '../../../../shared/components/avatar-picker/avatar-picker.component';
@@ -66,8 +70,11 @@ const MIN_DISPLAY_NAME_LENGTH = 2;
     IonInput,
     IonButton,
     IonIcon,
+    IonSelect,
+    IonSelectOption,
     IonToast,
     AvatarPickerComponent,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './edit-profile.page.html',
@@ -78,6 +85,12 @@ export class EditProfilePage {
   private readonly usersService = inject(UsersService);
   private readonly connectivityService = inject(ConnectivityService);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
+
+  /** Backs the language `ion-select` below; `TranslateService.currentLang`
+   * is itself a signal, so the control stays in sync if the language is
+   * ever changed from somewhere else in the app. */
+  readonly currentLang = this.translate.currentLang;
 
   readonly isOnline = this.connectivityService.isOnline;
 
@@ -138,7 +151,7 @@ export class EditProfilePage {
       }
       if (state.status === 'success') {
         this.toastColor.set('success');
-        this.toastMessage.set('Profile updated.');
+        this.toastMessage.set(this.translate.instant('editProfile.profileUpdated'));
         this.toastOpen.set(true);
         void this.authService.updateCurrentUser(state.data);
         return;
@@ -175,7 +188,7 @@ export class EditProfilePage {
   onAvatarUploaded(event: { photoUrl: string }): void {
     this.avatarPreview.set(event.photoUrl);
     this.toastColor.set('success');
-    this.toastMessage.set('Avatar updated.');
+    this.toastMessage.set(this.translate.instant('editProfile.avatarUpdated'));
     this.toastOpen.set(true);
 
     const currentUser = this.authService.currentUser();
@@ -187,5 +200,9 @@ export class EditProfilePage {
 
   onToastDismiss(): void {
     this.toastOpen.set(false);
+  }
+
+  onLanguageChange(event: SelectCustomEvent<string>): void {
+    void this.translate.use(event.detail.value);
   }
 }
