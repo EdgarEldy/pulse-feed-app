@@ -11,6 +11,7 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-comment-input',
@@ -25,6 +26,7 @@ import {
     IonContent,
     IonFooter,
     IonTextarea,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './comment-input.component.html',
