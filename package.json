@@ -13,7 +13,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "e2e": "playwright test"
   },
   "private": true,
   "dependencies": {
@@ -51,6 +52,7 @@
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "8.5.1",
     "@ionic/angular-toolkit": "^13.0.0",
+    "@playwright/test": "^1.63.0",
     "@types/jasmine": "^6.0.0",
     "angular-eslint": "21.4.0",
     "eslint": "^9.16.0",
