@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { alertCircleOutline, refreshOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AppError, AppErrorKind } from '../../../core/models/app-error';
 
 addIcons({ 'alert-circle-outline': alertCircleOutline, 'refresh-outline': refreshOutline });
@@ -13,12 +14,12 @@ addIcons({ 'alert-circle-outline': alertCircleOutline, 'refresh-outline': refres
 // visible text alongside its icon, so it is exempt from that rule, but the
 // convention still applies to every icon-only control across this design
 // system.
-const ERROR_MESSAGES: Record<AppErrorKind, string> = {
-  network: "You're offline. Check your connection and try again.",
-  unauthorized: 'Your session has expired. Please sign in again.',
-  server: 'Something went wrong on our end. Please try again shortly.',
-  cache: "We couldn't load the saved data on this device.",
-  validation: 'The server sent back something unexpected. Please try again.',
+const ERROR_MESSAGE_KEYS: Record<AppErrorKind, string> = {
+  network: 'errors.network',
+  unauthorized: 'errors.unauthorized',
+  server: 'errors.server',
+  cache: 'errors.cache',
+  validation: 'errors.validation',
 };
 
 /**
@@ -36,7 +37,7 @@ const ERROR_MESSAGES: Record<AppErrorKind, string> = {
 @Component({
   selector: 'app-error-view',
   standalone: true,
-  imports: [IonButton, IonIcon],
+  imports: [IonButton, IonIcon, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './error-view.component.html',
   styleUrl: './error-view.component.scss',
@@ -49,7 +50,7 @@ export class ErrorViewComponent {
   // everywhere this component is used.
   @Output() retry = new EventEmitter<void>();
 
-  get message(): string {
-    return ERROR_MESSAGES[this.error.kind];
+  get messageKey(): string {
+    return ERROR_MESSAGE_KEYS[this.error.kind];
   }
 }
