@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { provideTestTranslations } from '../../../testing/translate-testing';
 import { OfflineBannerComponent } from './offline-banner.component';
 
 describe('OfflineBannerComponent', () => {
@@ -9,7 +10,7 @@ describe('OfflineBannerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [OfflineBannerComponent],
-      providers: [provideIonicAngular()],
+      providers: [provideIonicAngular(), provideTestTranslations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OfflineBannerComponent);
