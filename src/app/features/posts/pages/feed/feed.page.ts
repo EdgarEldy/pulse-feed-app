@@ -16,6 +16,7 @@ import {
 import type { InfiniteScrollCustomEvent, RefresherCustomEvent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, newspaperOutline } from 'ionicons/icons';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AdaptiveGridComponent } from '../../../../shared/components/adaptive-grid/adaptive-grid.component';
 import { ErrorViewComponent } from '../../../../shared/components/error-view/error-view.component';
 import { LoadingIndicatorComponent } from '../../../../shared/components/loading-indicator/loading-indicator.component';
@@ -61,6 +62,7 @@ addIcons({
     ErrorViewComponent,
     LoadingIndicatorComponent,
     PostCardComponent,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './feed.page.html',
@@ -69,6 +71,7 @@ addIcons({
 export class FeedPage {
   private readonly postsService = inject(PostsService);
   private readonly authService = inject(AuthService);
+  private readonly translate = inject(TranslateService);
 
   readonly posts = this.postsService.posts;
 
@@ -139,7 +142,7 @@ export class FeedPage {
    * visible, honest feedback instead of silently failing to navigate.
    */
   onEdit(post: Post): void {
-    console.info(`Editing post ${post.id} is not available yet.`);
+    console.info(this.translate.instant('posts.editUnavailable', { postId: post.id }));
   }
 
   onDelete(post: Post): void {
