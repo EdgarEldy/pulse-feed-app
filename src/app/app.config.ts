@@ -9,11 +9,12 @@ import {
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
+import { provideTranslateService, provideTranslateLoader, provideTranslateParser } from '@ngx-translate/core';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { AppTranslateLoader } from './core/i18n/app-translate-loader';
+import { IcuPluralTranslateParser } from './core/i18n/icu-plural-translate-parser';
 import { AuthService } from './features/auth/auth.service';
 import { postHeroTransition } from './features/posts/post-hero-transition.util';
 
@@ -52,6 +53,12 @@ export const appConfig: ApplicationConfig = {
       lang: 'en',
       fallbackLang: 'en',
       loader: provideTranslateLoader(AppTranslateLoader),
+      // The comments/likes counters use ICU plural syntax
+      // (`{count, plural, =0 {...} other {...}}`), which the default parser
+      // does not understand; see `IcuPluralTranslateParser`'s doc comment
+      // for why this is a small custom parser rather than an added
+      // MessageFormat dependency.
+      parser: provideTranslateParser(IcuPluralTranslateParser),
     }),
     // Restores `AuthService.currentUser` from stored tokens before the app
     // renders its first route (README's Auth Model: "an APP_INITIALIZER
