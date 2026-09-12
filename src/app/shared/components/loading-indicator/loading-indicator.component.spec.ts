@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { provideTestTranslations } from '../../../testing/translate-testing';
 import { LoadingIndicatorComponent } from './loading-indicator.component';
 
 describe('LoadingIndicatorComponent', () => {
@@ -9,7 +10,7 @@ describe('LoadingIndicatorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoadingIndicatorComponent],
-      providers: [provideIonicAngular()],
+      providers: [provideIonicAngular(), provideTestTranslations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoadingIndicatorComponent);
