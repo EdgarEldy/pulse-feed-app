@@ -12,6 +12,7 @@ import {
   IonToast,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../auth.service';
 
 /**
@@ -46,6 +47,7 @@ const MIN_PASSWORD_LENGTH = 8;
     IonInput,
     IonButton,
     IonToast,
+    TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.page.html',
