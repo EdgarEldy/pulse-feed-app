@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { apiEndpoints } from '../../core/http/api-endpoints';
 import { SecureTokenStorageService } from '../../core/storage/secure-token-storage.service';
 import { environment } from '../../../environments/environment';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { User } from '../users/user.model';
 import { AuthService } from './auth.service';
 
@@ -78,6 +79,7 @@ describe('AuthService', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideTestTranslations(),
         { provide: SecureTokenStorageService, useValue: fakeTokenStorage },
       ],
     });
