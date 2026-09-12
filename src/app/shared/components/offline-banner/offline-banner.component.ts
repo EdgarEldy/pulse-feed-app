@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { closeOutline, cloudOfflineOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 
 addIcons({ 'cloud-offline-outline': cloudOfflineOutline, 'close-outline': closeOutline });
 
@@ -20,13 +21,13 @@ addIcons({ 'cloud-offline-outline': cloudOfflineOutline, 'close-outline': closeO
 @Component({
   selector: 'app-offline-banner',
   standalone: true,
-  imports: [IonIcon, IonButton],
+  imports: [IonIcon, IonButton, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (isOffline) {
       <div class="offline-banner" role="status">
         <ion-icon name="cloud-offline-outline" aria-hidden="true"></ion-icon>
-        <span class="offline-banner__text">You're offline. Showing saved content.</span>
+        <span class="offline-banner__text">{{ 'offlineBanner.message' | translate }}</span>
         <!--
           Not functionally dismissible yet, disabled on purpose so it does
           not mislead a screen reader into thinking a tap actually hides
@@ -37,7 +38,7 @@ addIcons({ 'cloud-offline-outline': cloudOfflineOutline, 'close-outline': closeO
           fill="clear"
           size="small"
           disabled
-          aria-label="Dismiss offline notice"
+          [attr.aria-label]="'offlineBanner.dismiss' | translate"
         >
           <ion-icon slot="icon-only" name="close-outline" aria-hidden="true"></ion-icon>
         </ion-button>
