@@ -2,7 +2,7 @@
       class="loading-indicator"
       role="status"
       aria-live="polite"
-      [attr.aria-label]="label || 'Loading'"
+      [attr.aria-label]="label || ('loadingIndicator.default' | translate)"
     >
       <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
     </div>
