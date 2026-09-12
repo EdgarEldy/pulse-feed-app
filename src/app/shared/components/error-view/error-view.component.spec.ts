@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { AppErrorKind } from '../../../core/models/app-error';
+import { provideTestTranslations } from '../../../testing/translate-testing';
 import { ErrorViewComponent } from './error-view.component';
 
 const EXPECTED_MESSAGES: Record<AppErrorKind, string> = {
@@ -18,7 +19,7 @@ describe('ErrorViewComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ErrorViewComponent],
-      providers: [provideIonicAngular()],
+      providers: [provideIonicAngular(), provideTestTranslations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ErrorViewComponent);
