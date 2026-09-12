@@ -4,6 +4,7 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
 import { IonButton, IonIcon, IonProgressBar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AppError } from '../../../core/models/app-error';
 import { UsersService } from '../../../features/users/users.service';
 import { ErrorViewComponent } from '../error-view/error-view.component';
@@ -39,7 +40,7 @@ type AvatarPickerState = { status: 'idle' } | { status: 'uploading'; progress: n
 @Component({
   selector: 'app-avatar-picker',
   standalone: true,
-  imports: [IonButton, IonIcon, IonProgressBar, ErrorViewComponent],
+  imports: [IonButton, IonIcon, IonProgressBar, ErrorViewComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './avatar-picker.component.html',
   styleUrl: './avatar-picker.component.scss',
