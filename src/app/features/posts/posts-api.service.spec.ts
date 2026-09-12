@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { apiEndpoints } from '../../core/http/api-endpoints';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { PostsApiService } from './posts-api.service';
 
 const samplePostDto = {
@@ -30,7 +31,7 @@ describe('PostsApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTestTranslations()],
     });
 
     service = TestBed.inject(PostsApiService);
