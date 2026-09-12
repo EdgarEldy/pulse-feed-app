@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { IonSpinner } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * A small, reusable loading state, wrapping `ion-spinner` so every feature
@@ -17,7 +18,7 @@ import { IonSpinner } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-loading-indicator',
   standalone: true,
-  imports: [IonSpinner],
+  imports: [IonSpinner, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './loading-indicator.component.html',
   styleUrl: './loading-indicator.component.scss',
