@@ -31,3 +31,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Only exercised on the way to master: develop is where feature
+      # branches land day to day and never itself ships to a device, so
+      # there is nothing gained from copying the web build into the native
+      # projects on every one of those merges. A PR into master is by
+      # definition release-bound, and `cap sync` is exactly the step a real
+      # release would need to run right before an Android/iOS build, so
+      # this is where it earns catching a broken sync before it reaches
+      # that point.
+      - name: Sync Capacitor native projects
+        if: github.base_ref == 'master'
+        run: npx cap sync
