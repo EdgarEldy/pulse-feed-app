@@ -2,6 +2,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideIonicAngular, ModalController } from '@ionic/angular/standalone';
+import { provideTestTranslations } from '../../../../testing/translate-testing';
 import { CommentInputComponent } from './comment-input.component';
 
 describe('CommentInputComponent', () => {
@@ -18,6 +19,7 @@ describe('CommentInputComponent', () => {
       providers: [
         provideIonicAngular(),
         provideNoopAnimations(),
+        provideTestTranslations(),
         { provide: ModalController, useValue: fakeModal },
       ],
     })
