@@ -5,6 +5,13 @@
   font-size: 0.875rem;
 }
 
+.auth-divider {
+  margin: var(--app-space-lg) 0 var(--app-space-md);
+  text-align: center;
+  color: var(--ion-color-medium);
+  font-size: 0.875rem;
+}
+
 .auth-switch {
   margin-top: var(--app-space-lg);
   text-align: center;
