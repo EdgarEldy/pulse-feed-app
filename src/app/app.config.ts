@@ -9,12 +9,13 @@ import {
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-import { provideTranslateService, provideTranslateLoader, provideTranslateParser } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
+import { provideTranslateService, provideTranslateLoader, TranslateService } from '@ngx-translate/core';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { AppTranslateLoader } from './core/i18n/app-translate-loader';
-import { IcuPluralTranslateParser } from './core/i18n/icu-plural-translate-parser';
+import { TRANSLATE_CONFIG_BASE } from './core/i18n/translate-config';
 import { AuthService } from './features/auth/auth.service';
 import { postHeroTransition } from './features/posts/post-hero-transition.util';
 
@@ -47,18 +48,13 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     // `provideTranslateService` requires `provideHttpClient` above to already
     // be registered, since `AppTranslateLoader` injects `HttpClient` to fetch
-    // `assets/i18n/<lang>.json`. English is both the starting language and
-    // the fallback used when a key is missing in the active language.
+    // `assets/i18n/<lang>.json`. `TRANSLATE_CONFIG_BASE` (lang, fallbackLang,
+    // the ICU-plural parser) is shared with the test-only equivalent of this
+    // call in `testing/translate-testing.ts`, so only the loader differs
+    // between production and specs.
     provideTranslateService({
-      lang: 'en',
-      fallbackLang: 'en',
+      ...TRANSLATE_CONFIG_BASE,
       loader: provideTranslateLoader(AppTranslateLoader),
-      // The comments/likes counters use ICU plural syntax
-      // (`{count, plural, =0 {...} other {...}}`), which the default parser
-      // does not understand; see `IcuPluralTranslateParser`'s doc comment
-      // for why this is a small custom parser rather than an added
-      // MessageFormat dependency.
-      parser: provideTranslateParser(IcuPluralTranslateParser),
     }),
     // Restores `AuthService.currentUser` from stored tokens before the app
     // renders its first route (README's Auth Model: "an APP_INITIALIZER
@@ -67,9 +63,22 @@ export const appConfig: ApplicationConfig = {
     // runs every `provideAppInitializer` factory, awaiting any returned
     // Promise, before bootstrapping proceeds, so `authGuard` never sees a
     // still-loading, not-yet-restored session on the very first navigation.
-    provideAppInitializer(() => {
+    //
+    // Waits for `assets/i18n/en.json` to finish loading first, in the same
+    // initializer rather than a separate one (Angular runs every
+    // `provideAppInitializer` concurrently, not in declaration order, so a
+    // second initializer alone would not guarantee this ordering): without
+    // it, a slow network could still have the translation fetch in flight
+    // when `restoreSession()` hits an error path that calls
+    // `TranslateService.instant(...)` to build a translated `AppError`
+    // message (an expired/invalid stored session, or no refresh token at
+    // all), silently rendering the raw key instead of real text on a cold
+    // start instead of the intended message.
+    provideAppInitializer(async () => {
+      const translate = inject(TranslateService);
       const authService = inject(AuthService);
-      return authService.restoreSession();
+      await firstValueFrom(translate.use(translate.currentLang() ?? 'en'));
+      await authService.restoreSession();
     }),
   ],
 };
