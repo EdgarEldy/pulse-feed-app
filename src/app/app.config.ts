@@ -18,6 +18,7 @@ import { AppTranslateLoader } from './core/i18n/app-translate-loader';
 import { TRANSLATE_CONFIG_BASE } from './core/i18n/translate-config';
 import { AuthService } from './features/auth/auth.service';
 import { postHeroTransition } from './features/posts/post-hero-transition.util';
+import { PushNotificationService } from './core/notifications/push-notification.service';
 
 /**
  * Centralizes every top-level provider the app needs to bootstrap: the
@@ -79,6 +80,15 @@ export const appConfig: ApplicationConfig = {
       const authService = inject(AuthService);
       await firstValueFrom(translate.use(translate.currentLang() ?? 'en'));
       await authService.restoreSession();
+      // Constructed here, once, rather than left to whichever component
+      // happens to inject it first (nothing does — see the service's own
+      // doc comment): its constructor sets up the push/local-notification
+      // listeners and an `effect()` reacting to `AuthService.currentUser`,
+      // both of which need to be live before the app renders its first
+      // route, and the effect specifically needs `currentUser` to already
+      // reflect whatever `restoreSession()` just resolved, not a stale
+      // `null` a session restore beat it to.
+      inject(PushNotificationService);
     }),
   ],
 };
