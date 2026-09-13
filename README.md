@@ -83,6 +83,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `TestBed` (`@angular/core/testing`) | Component testing | Angular's built-in harness for configuring a testing module, creating a `ComponentFixture`, and querying/interacting with rendered components. |
 | `@angular/common/http/testing` | HTTP test double | `provideHttpClientTesting()` + `HttpTestingController` intercept `HttpClient` requests in tests and return canned responses, so services run without a real backend. |
 | `playwright` | End-to-end testing | Drives the full app (real browser, real navigation) in black-box tests, including the web build. |
+| `@playwright/test` | End-to-end test runner | The `test`/`expect`/`defineConfig` APIs the e2e suite is actually written against; `playwright` alone is only the browser automation library, not a test runner. |
 | `eslint` + `angular-eslint` | Static analysis | Lint rule set enforced by `ng lint` and the CI pipeline. |
 
 ---
