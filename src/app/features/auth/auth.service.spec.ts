@@ -1,6 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { ErrorCode } from '@capawesome/capacitor-google-sign-in';
+import { GoogleSignInWeb } from '@capawesome/capacitor-google-sign-in/dist/esm/web';
 import { apiEndpoints } from '../../core/http/api-endpoints';
 import { SecureTokenStorageService } from '../../core/storage/secure-token-storage.service';
 import { environment } from '../../../environments/environment';
@@ -18,6 +20,47 @@ import { AuthService } from './auth.service';
  */
 function flushMicrotasks(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+/**
+ * `signInWithGoogle()` resolves `GoogleSignIn.initialize()`/`.signIn()`
+ * through `@capawesome/capacitor-google-sign-in`'s `registerPlugin` wrapper,
+ * which dynamically imports its `./web` implementation module before
+ * delegating to it. That dynamic `import()` settles on its own macrotask
+ * turn, on top of the ordinary Promise-chain microtasks `flushMicrotasks()`
+ * already drains, so a single `flushMicrotasks()` call is not enough to
+ * reach the point where `POST /auth/google` actually goes out.
+ *
+ * A single fixed-length wait here is exactly the kind of thing that looks
+ * fine locally and then flakes under CI load (the dynamic import taking
+ * fractionally longer than whatever guess was hardcoded): this instead
+ * polls for the request actually arriving, succeeding the moment it does
+ * and only ever running longer than necessary on a genuinely slow run,
+ * rather than gambling once on a fixed delay.
+ */
+async function waitForRequest(httpMock: HttpTestingController, url: string, maxAttempts = 100): Promise<TestRequest> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const [match] = httpMock.match(url);
+    if (match) {
+      return match;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`Expected a request to ${url}, but none arrived after polling for ${maxAttempts * 10}ms.`);
+}
+
+/**
+ * For asserting a request never arrives (the sign-in-canceled case below):
+ * there is no "wait until absent" to poll for, so this just waits out the
+ * same dynamic-import/microtask settling `waitForRequest` polls through,
+ * once, before checking. Unlike a fixed wait used to assert something
+ * *did* happen, a wait used only to assert something did *not* happen
+ * cannot flake by being too short in the way `waitForRequest` replaced.
+ */
+async function flushGoogleSignIn(): Promise<void> {
+  await flushMicrotasks();
+  await flushMicrotasks();
+  await new Promise((resolve) => setTimeout(resolve, 50));
 }
 
 /**
@@ -144,6 +187,68 @@ describe('AuthService', () => {
         status: 'error',
         error: { kind: 'server', message: 'Email already in use.', statusCode: 409 },
       });
+    });
+  });
+
+  describe('signInWithGoogle', () => {
+    const googleSignInResult = {
+      idToken: 'google-id-token',
+      userId: 'google-user-1',
+      email: 'ada@example.com',
+      displayName: 'Ada Lovelace',
+      givenName: 'Ada',
+      familyName: 'Lovelace',
+      imageUrl: null,
+      accessToken: null,
+      serverAuthCode: null,
+    };
+
+    beforeEach(() => {
+      spyOn(GoogleSignInWeb.prototype, 'initialize').and.resolveTo(undefined);
+    });
+
+    it('maps a mocked API response to User the same way signIn does', async () => {
+      spyOn(GoogleSignInWeb.prototype, 'signIn').and.resolveTo(googleSignInResult);
+
+      service.signInWithGoogle();
+      // GoogleSignIn.initialize()/signIn() are both Promise-returning, so
+      // the POST /auth/google call itself does not go out until those
+      // microtasks (and the plugin's own dynamic import) resolve.
+      const req = await waitForRequest(httpMock, `${environment.apiBaseUrl}${apiEndpoints.auth.google}`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ idToken: 'google-id-token' });
+      req.flush({ accessToken: 'access-1', refreshToken: 'refresh-1', user: sampleUser });
+
+      await flushMicrotasks();
+
+      expect(service.currentUser()).toEqual(sampleUser);
+      expect(service.isAuthenticated()).toBeTrue();
+      expect(service.authState()).toEqual({ status: 'success' });
+    });
+
+    it('returns to idle, not an error, when the user cancels the account picker', async () => {
+      spyOn(GoogleSignInWeb.prototype, 'signIn').and.rejectWith({ code: ErrorCode.SignInCanceled, message: 'User canceled.' });
+
+      service.signInWithGoogle();
+      await flushGoogleSignIn();
+
+      httpMock.expectNone(`${environment.apiBaseUrl}${apiEndpoints.auth.google}`);
+      expect(service.authState()).toEqual({ status: 'idle' });
+      expect(service.currentUser()).toBeNull();
+    });
+
+    it('surfaces the backend AppError unchanged, including an email already used under a password account', async () => {
+      spyOn(GoogleSignInWeb.prototype, 'signIn').and.resolveTo(googleSignInResult);
+
+      service.signInWithGoogle();
+      const req = await waitForRequest(httpMock, `${environment.apiBaseUrl}${apiEndpoints.auth.google}`);
+      req.flush({ message: 'This email is already registered with a password.' }, { status: 409, statusText: 'Conflict' });
+
+      expect(service.authState()).toEqual({
+        status: 'error',
+        error: { kind: 'server', message: 'This email is already registered with a password.', statusCode: 409 },
+      });
+      expect(service.currentUser()).toBeNull();
     });
   });
 
