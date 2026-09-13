@@ -16,6 +16,7 @@ describe('loadOfflineFirst', () => {
       remote: () => of(remoteData),
       cacheRead,
       cacheWrite,
+      cacheErrorMessage: 'No cached data available while offline.',
     }).subscribe((result) => {
       expect(result).toEqual({ status: 'success', data: remoteData });
       expect(cacheWrite).toHaveBeenCalledWith(remoteData);
@@ -33,6 +34,7 @@ describe('loadOfflineFirst', () => {
       remote: () => throwError(() => networkError),
       cacheRead: () => Promise.resolve(cachedData),
       cacheWrite,
+      cacheErrorMessage: 'No cached data available while offline.',
     }).subscribe((result) => {
       expect(result).toEqual({ status: 'success', data: cachedData });
       expect(cacheWrite).not.toHaveBeenCalled();
@@ -48,6 +50,7 @@ describe('loadOfflineFirst', () => {
       remote: () => throwError(() => unauthorizedError),
       cacheRead,
       cacheWrite: () => {},
+      cacheErrorMessage: 'No cached data available while offline.',
     }).subscribe((result) => {
       expect(result).toEqual({ status: 'error', error: unauthorizedError });
       expect(cacheRead).not.toHaveBeenCalled();
@@ -55,18 +58,19 @@ describe('loadOfflineFirst', () => {
     });
   });
 
-  it('emits a cache AppError when remote fails with network and cacheRead itself rejects', (done) => {
+  it('emits a cache AppError, using the caller-supplied message, when remote fails with network and cacheRead itself rejects', (done) => {
     const networkError: AppError = { kind: 'network', message: 'No connection to the server.' };
 
     loadOfflineFirst<Page>({
       remote: () => throwError(() => networkError),
       cacheRead: () => Promise.reject(new Error('local database is not open')),
       cacheWrite: () => {},
+      cacheErrorMessage: 'No cached data available while offline.',
     }).subscribe((result) => {
-      expect(result.status).toBe('error');
-      if (result.status === 'error') {
-        expect(result.error.kind).toBe('cache');
-      }
+      expect(result).toEqual({
+        status: 'error',
+        error: { kind: 'cache', message: 'No cached data available while offline.' },
+      });
       done();
     });
   });
