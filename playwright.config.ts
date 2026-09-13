@@ -6,9 +6,9 @@ import { defineConfig, devices } from '@playwright/test';
  * bundled mock backend (it is deliberately backend-agnostic, see the API
  * Contract section), so this suite drives the real, served web build in a
  * real browser while intercepting just the network calls the golden-path
- * flow makes, via Playwright's own `page.route()` (see `e2e/mocks.ts`) —
- * no separate mock server process, no new dependency beyond `playwright`
- * itself, which is already in README's Tech Stack table.
+ * flow makes, via Playwright's own `page.route()` (see `e2e/mocks.ts`), so
+ * no separate mock server process is needed, and no new dependency beyond
+ * `playwright` itself, which is already in README's Tech Stack table.
  *
  * `webServer` below starts `ng serve` and waits for it to be ready, so
  * `npm run e2e` is a single self-contained command; CI does not run this
