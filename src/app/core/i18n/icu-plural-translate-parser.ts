@@ -29,6 +29,18 @@ const PLURAL_BRANCH = /(=\d+|[a-zA-Z]+)\s*\{([^{}]*)\}/g;
  */
 @Injectable()
 export class IcuPluralTranslateParser extends TranslateDefaultParser {
+  /**
+   * `TranslateDefaultParser.interpolateString` is declared `protected`;
+   * overriding it without a modifier widens it to `public` (TypeScript
+   * permits widening an inherited member's visibility). This only works at
+   * runtime because `TranslateDefaultParser.interpolate()` calls back
+   * through `this.interpolateString(...)`, so polymorphism routes it here
+   * instead of the base implementation — verified against the installed
+   * `@ngx-translate/core` version. A future upgrade that changes
+   * `interpolate()` to call a differently-named or private internal method
+   * instead could silently stop routing through this override, with no
+   * compile error to catch it.
+   */
   override interpolateString(expr: string, params?: InterpolationParameters): string {
     const resolved = params ? this.resolvePlural(expr, params) : expr;
     return super.interpolateString(resolved, params) ?? resolved;
@@ -51,7 +63,13 @@ export class IcuPluralTranslateParser extends TranslateDefaultParser {
       branches.set(branchMatch[1], branchMatch[2]);
     }
 
-    const selected = branches.get(`=${count}`) ?? branches.get('other') ?? '';
-    return selected.replace(/#/g, String(count));
+    // No `other` branch is a malformed translation value (ICU MessageFormat
+    // requires one); falling back to the raw, un-substituted expr rather
+    // than an empty string means a broken plural key renders as visibly
+    // wrong (matching TranslateDefaultParser's own convention for a
+    // genuinely missing key returning the raw key) instead of silently
+    // blank.
+    const selected = branches.get(`=${count}`) ?? branches.get('other');
+    return selected === undefined ? expr : selected.replace(/#/g, String(count));
   }
 }

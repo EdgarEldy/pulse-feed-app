@@ -60,4 +60,10 @@ describe('IcuPluralTranslateParser', () => {
 
     expect(parser.interpolateString(expr, { count: 0 })).toBe(expr);
   });
+
+  it('returns the raw expression, not an empty string, when a count matches no branch and there is no other branch', () => {
+    const expr = '{count, plural, =0 {No comments} =1 {1 comment}}';
+
+    expect(parser.interpolateString(expr, { count: 5 })).toBe(expr);
+  });
 });
