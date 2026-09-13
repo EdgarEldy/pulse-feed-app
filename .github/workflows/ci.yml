@@ -40,6 +40,14 @@ jobs:
       # release would need to run right before an Android/iOS build, so
       # this is where it earns catching a broken sync before it reaches
       # that point.
+      #
+      # `github.base_ref` is only ever set on a `pull_request` event; a
+      # merge into master also fires this workflow's own `push` trigger
+      # (base_ref empty there), which the first half of this condition
+      # exists to catch too. Without it, this step only ever ran during the
+      # PR's own check run and never against master's actual post-merge
+      # state, so a broken sync introduced by, say, two PRs merging in an
+      # order neither was reviewed against would never be caught.
       - name: Sync Capacitor native projects
-        if: github.base_ref == 'master'
+        if: github.base_ref == 'master' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
         run: npx cap sync
