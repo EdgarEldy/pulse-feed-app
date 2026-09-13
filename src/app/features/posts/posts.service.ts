@@ -146,6 +146,7 @@ export class PostsService {
       // tagged pendingSync: false explicitly rather than left undefined, so
       // `PostRow`'s shape is honored the same way everywhere it is written.
       cacheWrite: (page) => this.local.upsertAll(page.items.map((post) => ({ ...post, pendingSync: false }))),
+      cacheErrorMessage: this.translate.instant('errors.cache'),
     }).subscribe((result) => {
       this.state.set(
         result.status === 'error'
@@ -198,6 +199,7 @@ export class PostsService {
         return cached;
       },
       cacheWrite: (post) => this.local.upsert({ ...post, pendingSync: false }),
+      cacheErrorMessage: this.translate.instant('errors.cache'),
     }).subscribe((result) => {
       this.detailState.set(result.status === 'error' ? result : { status: 'success', data: toPostRow(result.data) });
     });
