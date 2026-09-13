@@ -117,7 +117,7 @@ describe('AuthService', () => {
 
       expect(service.authState()).toEqual({
         status: 'error',
-        error: { kind: 'unauthorized', message: 'Session expired.' },
+        error: { kind: 'unauthorized', message: 'Your session has expired. Please sign in again.' },
       });
       expect(service.isAuthenticated()).toBeFalse();
       expect(service.currentUser()).toBeNull();
