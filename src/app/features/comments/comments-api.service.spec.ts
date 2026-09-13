@@ -89,7 +89,7 @@ describe('CommentsApiService', () => {
     const req = httpMock.expectOne(`${environment.apiBaseUrl}${apiEndpoints.comments.forPost('post-1')}`);
     req.error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
 
-    expect(error).toEqual({ kind: 'network', message: 'No connection to the server.' });
+    expect(error).toEqual({ kind: 'network', message: "You're offline. Check your connection and try again." });
   });
 
   it('deleteComment sends DELETE /comments/:id', () => {
