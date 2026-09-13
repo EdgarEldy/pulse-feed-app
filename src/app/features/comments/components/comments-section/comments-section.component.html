@@ -1,5 +1,5 @@
-<section aria-label="Comments">
-  <h2>Comments</h2>
+<section [attr.aria-label]="'comments.title' | translate">
+  <h2>{{ 'comments.title' | translate }}</h2>
 
   @let state = comments();
 
@@ -17,16 +17,16 @@
     }
 
     @if (state.data.length === 0) {
-      <p class="no-comments">No comments yet. Be the first!</p>
+      <p class="no-comments">{{ 'comments.empty' | translate }}</p>
     }
 
     @if (state.nextCursor) {
-      <ion-button expand="block" fill="clear" (click)="loadMore()">Load more</ion-button>
+      <ion-button expand="block" fill="clear" (click)="loadMore()">{{ 'comments.loadMore' | translate }}</ion-button>
     }
   }
 
   <ion-button expand="block" (click)="openCommentInput()">
     <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
-    Add comment
+    {{ 'comments.add' | translate }}
   </ion-button>
 </section>

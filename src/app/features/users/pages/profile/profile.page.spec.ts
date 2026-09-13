@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { AppError } from '../../../../core/models/app-error';
+import { provideTestTranslations } from '../../../../testing/translate-testing';
 import { User } from '../../user.model';
 import { UsersService, UsersState } from '../../users.service';
 import { ProfilePage } from './profile.page';
@@ -36,7 +37,11 @@ describe('ProfilePage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProfilePage],
-      providers: [provideIonicAngular(), { provide: UsersService, useValue: fakeUsersService }],
+      providers: [
+        provideIonicAngular(),
+        provideTestTranslations(),
+        { provide: UsersService, useValue: fakeUsersService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProfilePage);

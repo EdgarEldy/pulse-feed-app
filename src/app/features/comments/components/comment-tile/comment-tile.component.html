@@ -14,7 +14,7 @@
         <ion-icon
           class="comment-tile__pending"
           name="sync-outline"
-          aria-label="Pending sync"
+          [attr.aria-label]="'comments.pendingSync' | translate"
         ></ion-icon>
       }
       <span class="comment-tile__time">{{ comment().createdAt | timeAgo }}</span>
@@ -28,7 +28,7 @@
       fill="clear"
       size="small"
       color="danger"
-      aria-label="Delete comment"
+      [attr.aria-label]="'comments.delete' | translate"
       (click)="onDelete()"
     >
       <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>

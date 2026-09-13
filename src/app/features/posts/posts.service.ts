@@ -1,5 +1,6 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
 import { map } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
 import { AppError } from '../../core/models/app-error';
 import { loadOfflineFirst } from '../../core/offline/offline-first.util';
@@ -79,6 +80,7 @@ export class PostsService {
   private readonly local = inject(PostsLocalService);
   private readonly auth = inject(AuthService);
   private readonly sync = inject(SyncService);
+  private readonly translate = inject(TranslateService);
 
   private readonly state = signal<PostsState>({ status: 'idle' });
   readonly posts: Signal<PostsState> = this.state.asReadonly();
@@ -144,6 +146,7 @@ export class PostsService {
       // tagged pendingSync: false explicitly rather than left undefined, so
       // `PostRow`'s shape is honored the same way everywhere it is written.
       cacheWrite: (page) => this.local.upsertAll(page.items.map((post) => ({ ...post, pendingSync: false }))),
+      cacheErrorMessage: this.translate.instant('errors.cache'),
     }).subscribe((result) => {
       this.state.set(
         result.status === 'error'
@@ -196,6 +199,7 @@ export class PostsService {
         return cached;
       },
       cacheWrite: (post) => this.local.upsert({ ...post, pendingSync: false }),
+      cacheErrorMessage: this.translate.instant('errors.cache'),
     }).subscribe((result) => {
       this.detailState.set(result.status === 'error' ? result : { status: 'success', data: toPostRow(result.data) });
     });
@@ -210,7 +214,10 @@ export class PostsService {
    */
   createPost(payload: CreatePostPayload): void {
     if (!payload.title.trim() || !payload.content.trim()) {
-      this.state.set({ status: 'error', error: { kind: 'validation', message: 'Title and content are required.' } });
+      this.state.set({
+        status: 'error',
+        error: { kind: 'validation', message: this.translate.instant('createPost.validationRequired') },
+      });
       return;
     }
     this.uploadProgress.set(0);

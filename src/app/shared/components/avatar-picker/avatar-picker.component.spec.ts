@@ -5,6 +5,7 @@ import { CameraWeb } from '@capacitor/camera/dist/esm/web';
 import { Subject, of, throwError } from 'rxjs';
 import { UploadEvent } from '../../../core/http/base-api.service';
 import { UsersService } from '../../../features/users/users.service';
+import { provideTestTranslations } from '../../../testing/translate-testing';
 import { AvatarPickerComponent } from './avatar-picker.component';
 
 /**
@@ -41,7 +42,11 @@ describe('AvatarPickerComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [AvatarPickerComponent],
-      providers: [provideIonicAngular(), { provide: UsersService, useValue: fakeUsersService }],
+      providers: [
+        provideIonicAngular(),
+        provideTestTranslations(),
+        { provide: UsersService, useValue: fakeUsersService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AvatarPickerComponent);

@@ -5,6 +5,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { LikeState, LikesService } from '../../../features/likes/likes.service';
 import { PostRow } from '../../../features/posts/post.model';
+import { provideTestTranslations } from '../../../testing/translate-testing';
 import { PostCardComponent } from './post-card.component';
 
 const post: PostRow = {
@@ -37,6 +38,7 @@ describe('PostCardComponent', () => {
       providers: [
         provideIonicAngular(),
         provideNoopAnimations(),
+        provideTestTranslations(),
         { provide: LikesService, useValue: fakeLikesService },
       ],
     }).compileComponents();

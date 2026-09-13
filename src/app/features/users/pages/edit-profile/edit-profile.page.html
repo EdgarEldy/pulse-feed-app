@@ -1,19 +1,19 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Edit profile</ion-title>
+    <ion-title>{{ 'editProfile.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="edit-profile__avatar">
     @if (avatarPhotoUrl()) {
-      <img [src]="avatarPhotoUrl()" alt="Your current avatar" class="edit-profile__avatar-img" />
+      <img [src]="avatarPhotoUrl()" [alt]="'editProfile.currentAvatarAlt' | translate" class="edit-profile__avatar-img" />
     } @else {
       <ion-icon
         name="person-circle-outline"
         class="edit-profile__avatar-placeholder"
         role="img"
-        aria-label="No avatar set yet"
+        [attr.aria-label]="'editProfile.noAvatar' | translate"
       ></ion-icon>
     }
 
@@ -22,27 +22,42 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <ion-item>
-      <ion-label position="stacked">Display name</ion-label>
+      <ion-label position="stacked">{{ 'auth.fields.displayName.label' | translate }}</ion-label>
       <ion-input type="text" formControlName="displayName" autocomplete="name"></ion-input>
     </ion-item>
     @if (displayNameControl.invalid && (displayNameControl.touched || submitted())) {
       <p class="field-error" role="alert">
         @if (displayNameControl.hasError('required')) {
-          Display name is required.
+          {{ 'auth.fields.displayName.required' | translate }}
         } @else if (displayNameControl.hasError('minlength')) {
-          Display name must be at least 2 characters.
+          {{ 'auth.fields.displayName.minLength' | translate }}
         }
       </p>
     }
 
     @if (!isOnline()) {
-      <p class="offline-notice" role="status">You're offline. Editing your profile requires a connection.</p>
+      <p class="offline-notice" role="status">{{ 'editProfile.offlineNotice' | translate }}</p>
     }
 
     <ion-button expand="block" type="submit" [disabled]="!canSubmit()">
-      {{ isSubmitting() ? 'Saving…' : 'Save changes' }}
+      {{ (isSubmitting() ? 'editProfile.saving' : 'editProfile.save') | translate }}
     </ion-button>
   </form>
+
+  <!--
+    A language preference is a personal setting, and this page already only
+    ever edits the signed-in user's own account (see the class doc comment),
+    unlike ProfilePage, which can display anyone's profile. That makes this
+    form the more natural home for it than inventing a separate settings
+    page for one control.
+  -->
+  <ion-item>
+    <ion-label>{{ 'editProfile.language' | translate }}</ion-label>
+    <ion-select [value]="currentLang()" (ionChange)="onLanguageChange($event)" interface="popover">
+      <ion-select-option value="en">{{ 'editProfile.languageEnglish' | translate }}</ion-select-option>
+      <ion-select-option value="fr">{{ 'editProfile.languageFrench' | translate }}</ion-select-option>
+    </ion-select>
+  </ion-item>
 
   <ion-toast
     [isOpen]="toastOpen()"

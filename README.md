@@ -75,6 +75,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `@capacitor/filesystem` | File caching | Caches downloaded post/avatar images to disk so they render instantly and remain available offline. |
 | `@ngx-translate/core` | Internationalization | Loads translation JSON files and swaps the active language at runtime, without a full app rebuild per locale. |
 | `zod` | Runtime validation | Validates API responses at the HTTP boundary, so a malformed payload becomes a typed error instead of a silent `undefined`. |
+| `@capacitor/assets` | App icon/splash generation | Generates every platform-specific app icon and splash screen size from one source image, run as a one-off CLI step rather than a runtime dependency. |
 | `@capacitor-community/google-signin` | Social login (bonus) | Drives the native Google account picker and returns an ID token to exchange with the backend. |
 | `@capacitor/push-notifications` | Push notifications (bonus) | Registers the device for push (via FCM/APNs under the hood), receives the device push token, and delivers foreground/background messages. |
 | `@capacitor/local-notifications` | Local notification display (bonus) | Renders a system notification when a push message arrives while the app is in the foreground. |
@@ -82,6 +83,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `TestBed` (`@angular/core/testing`) | Component testing | Angular's built-in harness for configuring a testing module, creating a `ComponentFixture`, and querying/interacting with rendered components. |
 | `@angular/common/http/testing` | HTTP test double | `provideHttpClientTesting()` + `HttpTestingController` intercept `HttpClient` requests in tests and return canned responses, so services run without a real backend. |
 | `playwright` | End-to-end testing | Drives the full app (real browser, real navigation) in black-box tests, including the web build. |
+| `@playwright/test` | End-to-end test runner | The `test`/`expect`/`defineConfig` APIs the e2e suite is actually written against; `playwright` alone is only the browser automation library, not a test runner. |
 | `eslint` + `angular-eslint` | Static analysis | Lint rule set enforced by `ng lint` and the CI pipeline. |
 
 ---
@@ -927,14 +929,14 @@ App-wide accessibility and i18n pass, full test suite, app icons/splash, and the
 
 ### Tasks
 
-- [ ] Audit the app with axe DevTools or Lighthouse's accessibility pass; fix any remaining gaps across all pages
-- [ ] Extract every hardcoded string built so far into `en.json`/`fr.json`, verify runtime language switching end to end
-- [ ] Use `@ngx-translate/core`'s ICU plural syntax for at least the comments/likes counters (for example `{count, plural, =0 {no comments} =1 {1 comment} other {# comments}}`), so the pluralization concept from the Concept Map is actually exercised, not just declared
-- [ ] Fill any remaining unit/component test coverage gaps across prior branches
-- [ ] One end-to-end Playwright test: sign up, create a post, like it, comment on it
-- [ ] Generate app icons and splash screen (`@capacitor/assets`)
-- [ ] Extend `ci.yml`: lint -> test -> build web -> `npx cap sync` on every PR to `master`
-- [ ] Document Android keystore signing and iOS certificate/provisioning profile setup for a release build
+- [x] Audit the app with axe DevTools or Lighthouse's accessibility pass; fix any remaining gaps across all pages
+- [x] Extract every hardcoded string built so far into `en.json`/`fr.json`, verify runtime language switching end to end
+- [x] Use `@ngx-translate/core`'s ICU plural syntax for at least the comments/likes counters (for example `{count, plural, =0 {no comments} =1 {1 comment} other {# comments}}`), so the pluralization concept from the Concept Map is actually exercised, not just declared
+- [x] Fill any remaining unit/component test coverage gaps across prior branches
+- [x] One end-to-end Playwright test: sign up, create a post, like it, comment on it
+- [x] Generate app icons and splash screen (`@capacitor/assets`)
+- [x] Extend `ci.yml`: lint -> test -> build web -> `npx cap sync` on every PR to `master`
+- [x] Document Android keystore signing and iOS certificate/provisioning profile setup for a release build
 
 ---
 

@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { AppError } from '../../core/models/app-error';
 import { SyncService } from '../../core/offline/sync.service';
 import { AuthService } from '../auth/auth.service';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { User } from '../users/user.model';
 import { CreateCommentPayload, CommentsApiService } from './comments-api.service';
 import { CommentsLocalService } from './comments-local.service';
@@ -65,6 +66,7 @@ describe('CommentsService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideTestTranslations(),
         { provide: CommentsApiService, useValue: fakeApi },
         { provide: CommentsLocalService, useValue: fakeLocal },
         { provide: AuthService, useValue: new FakeAuthService() },

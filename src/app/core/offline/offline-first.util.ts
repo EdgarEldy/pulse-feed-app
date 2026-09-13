@@ -18,6 +18,12 @@ export function loadOfflineFirst<T>(options: {
   remote: () => Observable<T>;
   cacheRead: () => Promise<T>;
   cacheWrite: (data: T) => void | Promise<void>;
+  /** Pre-translated message for the `kind: 'cache'` `AppError` this function
+   * builds itself (the one message this framework-agnostic plain function
+   * cannot resolve on its own); every caller is a facade service that
+   * already has `TranslateService` available to resolve it with, typically
+   * from the shared `errors.cache` key. */
+  cacheErrorMessage: string;
 }): Observable<OfflineFirstResult<T>> {
   return options.remote().pipe(
     switchMap((data) =>
@@ -48,7 +54,7 @@ export function loadOfflineFirst<T>(options: {
       return from(options.cacheRead()).pipe(
         map((data) => ({ status: 'success', data }) as const),
         catchError(() => {
-          const cacheError: AppError = { kind: 'cache', message: 'No cached data available while offline.' };
+          const cacheError: AppError = { kind: 'cache', message: options.cacheErrorMessage };
           return of({ status: 'error', error: cacheError }) as Observable<OfflineFirstResult<T>>;
         }),
       );

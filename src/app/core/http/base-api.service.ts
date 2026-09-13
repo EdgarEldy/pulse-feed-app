@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpParams } f
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, filter, map, throwError } from 'rxjs';
 import { z } from 'zod';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 import { AppError } from '../models/app-error';
 import { toAppError } from './http-error.util';
@@ -31,6 +32,7 @@ export type UploadEvent<T> = { progress: number } | { progress: 100; result: T }
 @Injectable({ providedIn: 'root' })
 export class BaseApiService {
   private readonly http = inject(HttpClient);
+  private readonly translate = inject(TranslateService);
   private readonly baseUrl = environment.apiBaseUrl;
 
   get<T>(path: string, params?: QueryParams, schema?: z.ZodType<T>): Observable<T> {
@@ -125,7 +127,7 @@ export class BaseApiService {
     if (this.isAppError(error)) {
       return throwError(() => error);
     }
-    return throwError(() => toAppError(error as HttpErrorResponse));
+    return throwError(() => toAppError(error as HttpErrorResponse, (key) => this.translate.instant(key)));
   }
 
   private isAppError(error: unknown): error is AppError {

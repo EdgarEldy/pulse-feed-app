@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { AppDatabaseService, SqlExecutor } from './core/database/app-database.service';
 import { AuthService, AuthState } from './features/auth/auth.service';
+import { provideTestTranslations } from './testing/translate-testing';
 
 /**
  * `FeedPage` (default route once `feature/posts` landed) constructs
@@ -68,6 +69,7 @@ describe('AppComponent', () => {
         provideRouter(routes, withComponentInputBinding()),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideTestTranslations(),
         { provide: AuthService, useValue: new FakeAuthenticatedAuthService() },
         { provide: AppDatabaseService, useValue: new FakeAppDatabaseService() },
       ],
@@ -120,6 +122,7 @@ describe('AppComponent (unauthenticated)', () => {
         provideRouter(routes, withComponentInputBinding()),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideTestTranslations(),
         { provide: AuthService, useValue: new FakeUnauthenticatedAuthService() },
         { provide: AppDatabaseService, useValue: new FakeAppDatabaseService() },
       ],

@@ -2,7 +2,7 @@
   fill="clear"
   size="small"
   class="like-button"
-  aria-label="Toggle like"
+  [attr.aria-label]="ariaLabel()"
   (click)="onTap($event)"
 >
   <ion-icon
@@ -12,5 +12,5 @@
     aria-hidden="true"
     slot="start"
   ></ion-icon>
-  <span>{{ likeState()?.likesCount ?? initialLikesCount() }}</span>
+  <span aria-hidden="true">{{ 'likes.count' | translate: { count: likeState()?.likesCount ?? initialLikesCount() } }}</span>
 </ion-button>

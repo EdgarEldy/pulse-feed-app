@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { apiEndpoints } from '../../core/http/api-endpoints';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { PostsApiService } from './posts-api.service';
 
 const samplePostDto = {
@@ -30,7 +31,7 @@ describe('PostsApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTestTranslations()],
     });
 
     service = TestBed.inject(PostsApiService);
@@ -105,7 +106,7 @@ describe('PostsApiService', () => {
     const req = httpMock.expectOne(`${environment.apiBaseUrl}${apiEndpoints.posts.byId('post-1')}`);
     req.error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
 
-    expect(error).toEqual({ kind: 'network', message: 'No connection to the server.' });
+    expect(error).toEqual({ kind: 'network', message: "You're offline. Check your connection and try again." });
   });
 
   it('deletePost sends DELETE /posts/:id', () => {

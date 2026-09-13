@@ -1,65 +1,65 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Create account</ion-title>
+    <ion-title>{{ 'auth.register.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <ion-item>
-      <ion-label position="stacked">Display name</ion-label>
+      <ion-label position="stacked">{{ 'auth.fields.displayName.label' | translate }}</ion-label>
       <ion-input type="text" formControlName="displayName" autocomplete="name"></ion-input>
     </ion-item>
     @if (displayNameControl.invalid && (displayNameControl.touched || submitted())) {
       <p class="field-error" role="alert">
         @if (displayNameControl.hasError('required')) {
-          Display name is required.
+          {{ 'auth.fields.displayName.required' | translate }}
         } @else if (displayNameControl.hasError('minlength')) {
-          Display name must be at least 2 characters.
+          {{ 'auth.fields.displayName.minLength' | translate }}
         }
       </p>
     }
 
     <ion-item>
-      <ion-label position="stacked">Email</ion-label>
+      <ion-label position="stacked">{{ 'auth.fields.email.label' | translate }}</ion-label>
       <ion-input type="email" formControlName="email" autocomplete="email" inputmode="email"></ion-input>
     </ion-item>
     @if (emailControl.invalid && (emailControl.touched || submitted())) {
       <p class="field-error" role="alert">
         @if (emailControl.hasError('required')) {
-          Email is required.
+          {{ 'auth.fields.email.required' | translate }}
         } @else if (emailControl.hasError('email')) {
-          Enter a valid email address.
+          {{ 'auth.fields.email.invalid' | translate }}
         }
       </p>
     }
 
     <ion-item>
-      <ion-label position="stacked">Password</ion-label>
+      <ion-label position="stacked">{{ 'auth.fields.password.label' | translate }}</ion-label>
       <ion-input type="password" formControlName="password" autocomplete="new-password"></ion-input>
     </ion-item>
     @if (passwordControl.invalid && (passwordControl.touched || submitted())) {
       <p class="field-error" role="alert">
         @if (passwordControl.hasError('required')) {
-          Password is required.
+          {{ 'auth.fields.password.required' | translate }}
         } @else if (passwordControl.hasError('minlength')) {
-          Password must be at least 8 characters.
+          {{ 'auth.fields.password.minLength' | translate }}
         }
       </p>
     }
 
     @if (submitted() && form.invalid) {
-      <p class="form-error" role="alert">Please fix the highlighted fields before continuing.</p>
+      <p class="form-error" role="alert">{{ 'auth.formError' | translate }}</p>
     }
 
     <ion-button expand="block" type="submit" [disabled]="isSubmitting()">
-      {{ isSubmitting() ? 'Creating account…' : 'Create account' }}
+      {{ (isSubmitting() ? 'auth.register.submitting' : 'auth.register.submit') | translate }}
     </ion-button>
   </form>
 
   <p class="auth-switch">
-    Already have an account?
-    <a routerLink="/login">Sign in</a>
+    {{ 'auth.register.switchPrompt' | translate }}
+    <a routerLink="/login">{{ 'auth.register.switchAction' | translate }}</a>
   </p>
 
   <ion-toast

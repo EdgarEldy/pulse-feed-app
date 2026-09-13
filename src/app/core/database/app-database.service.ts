@@ -34,6 +34,23 @@ interface Migration {
 const DATABASE_NAME = 'pulsefeed';
 
 /**
+ * The web platform's `jeep-sqlite`/`sql.js` WASM store can fail in a way
+ * that never settles the promise it returns at all: an Emscripten "Abort"
+ * past the point of resolving or rejecting, observed directly by driving
+ * this app in a real browser rather than a unit test's faked
+ * `AppDatabaseService`. `initWebStore()`'s own promise actually resolves
+ * fine when this happens; the WASM engine only genuinely engages once
+ * `createConnection()`/`db.open()` runs, which is where the hang was
+ * traced to, so this wraps `open()`'s entire web-platform sequence rather
+ * than just `initWebStore()`. Applied to the web platform only: native
+ * iOS/Android never touch `initWebStore()`/`jeep-sqlite` at all, and a
+ * real device's native SQLite connection/migration genuinely can take
+ * longer than this on a first run, so it must never be capped by the same
+ * timeout that exists purely to catch a broken web store.
+ */
+const WEB_STORE_INIT_TIMEOUT_MS = 5000;
+
+/**
  * Version 1 creates every table this branch's scope covers. `posts_cache`
  * and `comments_cache` mirror `PostRow`/`CommentRow` (see
  * `features/posts/post.model.ts` / `features/comments/comment.model.ts`)
@@ -128,7 +145,12 @@ export class AppDatabaseService {
   private readonly readyPromise: Promise<SqlExecutor>;
 
   constructor() {
-    this.readyPromise = this.open();
+    // Scoped to the web platform only: native iOS/Android never touch
+    // `initWebStore()`/`jeep-sqlite` at all, and a real device's native
+    // SQLite connection/migration can legitimately take longer than this
+    // on a first run, so it must never be capped by a timeout that exists
+    // purely to catch a broken web store.
+    this.readyPromise = Capacitor.getPlatform() === 'web' ? this.withTimeout(this.open(), WEB_STORE_INIT_TIMEOUT_MS) : this.open();
   }
 
   /**
@@ -174,6 +196,21 @@ export class AppDatabaseService {
     }
     await customElements.whenDefined('jeep-sqlite');
     await this.connection.initWebStore();
+  }
+
+  /**
+   * Races `promise` against a timer, rejecting with a clear, specific
+   * error if the timer wins. Plain `Promise.race`, not an RxJS `timeout()`
+   * operator: this service has no other reason to depend on RxJS, and a
+   * two-line `Promise` helper does not need one just for this.
+   */
+  private withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        setTimeout(() => reject(new Error(`Timed out after ${ms}ms waiting for the web SQLite store to initialize.`)), ms);
+      }),
+    ]);
   }
 
   private async migrate(db: SQLiteDBConnection): Promise<void> {

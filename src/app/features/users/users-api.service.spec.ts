@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { apiEndpoints } from '../../core/http/api-endpoints';
 import { environment } from '../../../environments/environment';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { UsersApiService } from './users-api.service';
 
 const sampleUserDto = {
@@ -19,7 +20,7 @@ describe('UsersApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTestTranslations()],
     });
 
     service = TestBed.inject(UsersApiService);
@@ -70,7 +71,7 @@ describe('UsersApiService', () => {
     const req = httpMock.expectOne(`${environment.apiBaseUrl}${apiEndpoints.users.me}`);
     req.flush({ message: 'Session expired.' }, { status: 401, statusText: 'Unauthorized' });
 
-    expect(error).toEqual({ kind: 'unauthorized', message: 'Session expired.' });
+    expect(error).toEqual({ kind: 'unauthorized', message: 'Your session has expired. Please sign in again.' });
   });
 
   it('uploadAvatar posts multipart form data to /users/me/avatar and emits progress then the result', () => {

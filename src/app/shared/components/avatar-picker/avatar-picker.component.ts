@@ -4,6 +4,7 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
 import { IonButton, IonIcon, IonProgressBar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppError } from '../../../core/models/app-error';
 import { UsersService } from '../../../features/users/users.service';
 import { ErrorViewComponent } from '../error-view/error-view.component';
@@ -39,7 +40,7 @@ type AvatarPickerState = { status: 'idle' } | { status: 'uploading'; progress: n
 @Component({
   selector: 'app-avatar-picker',
   standalone: true,
-  imports: [IonButton, IonIcon, IonProgressBar, ErrorViewComponent],
+  imports: [IonButton, IonIcon, IonProgressBar, ErrorViewComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './avatar-picker.component.html',
   styleUrl: './avatar-picker.component.scss',
@@ -47,6 +48,7 @@ type AvatarPickerState = { status: 'idle' } | { status: 'uploading'; progress: n
 export class AvatarPickerComponent {
   private readonly usersService = inject(UsersService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   /** Emitted once, with the server's response, right after a successful upload. */
   @Output() uploaded = new EventEmitter<{ photoUrl: string }>();
@@ -68,7 +70,7 @@ export class AvatarPickerComponent {
     let file: File;
     try {
       file = await this.toFile(photo);
-    } catch (error) {
+    } catch {
       // Unlike a cancelled picker, a failure past this point (no webPath,
       // fetch/blob conversion failing) means the user *did* pick something
       // and it genuinely could not be turned into an uploadable file. That
@@ -76,7 +78,7 @@ export class AvatarPickerComponent {
       // not a silent no-op.
       this.pickerState.set({
         status: 'error',
-        error: { kind: 'validation', message: error instanceof Error ? error.message : 'Could not read the picked photo.' },
+        error: { kind: 'validation', message: this.translate.instant('avatarPicker.photoReadError') },
       });
       return;
     }

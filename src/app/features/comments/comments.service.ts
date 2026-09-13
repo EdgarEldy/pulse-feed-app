@@ -1,5 +1,6 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
 import { map, throwError } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
 import { AppError } from '../../core/models/app-error';
 import { loadOfflineFirst } from '../../core/offline/offline-first.util';
@@ -62,6 +63,7 @@ export class CommentsService {
   private readonly local = inject(CommentsLocalService);
   private readonly auth = inject(AuthService);
   private readonly sync = inject(SyncService);
+  private readonly translate = inject(TranslateService);
 
   private readonly state = signal<CommentsState>({ status: 'idle' });
   readonly comments: Signal<CommentsState> = this.state.asReadonly();
@@ -121,6 +123,7 @@ export class CommentsService {
       // A row freshly read from the server is never itself pending: it is
       // tagged pendingSync: false explicitly rather than left undefined.
       cacheWrite: (page) => this.local.upsertAll(page.items.map((comment) => ({ ...comment, pendingSync: false }))),
+      cacheErrorMessage: this.translate.instant('errors.cache'),
     }).subscribe((result) => {
       this.state.set(
         result.status === 'error'

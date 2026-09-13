@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { ConnectivityService } from '../../../../core/network/connectivity.service';
+import { provideTestTranslations } from '../../../../testing/translate-testing';
 import { AuthService } from '../../../auth/auth.service';
 import { User } from '../../user.model';
 import { UsersService, UsersState } from '../../users.service';
@@ -59,6 +60,7 @@ describe('EditProfilePage', () => {
       imports: [EditProfilePage],
       providers: [
         provideIonicAngular(),
+        provideTestTranslations(),
         { provide: AuthService, useValue: fakeAuthService },
         { provide: UsersService, useValue: fakeUsersService },
         { provide: ConnectivityService, useValue: fakeConnectivityService },

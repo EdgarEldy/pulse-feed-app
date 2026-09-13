@@ -1,8 +1,8 @@
     <div class="error-view">
       <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-      <p class="error-view__message">{{ message }}</p>
+      <p class="error-view__message">{{ messageKey | translate }}</p>
       <ion-button fill="outline" size="small" (click)="retry.emit()">
         <ion-icon slot="start" name="refresh-outline" aria-hidden="true"></ion-icon>
-        Try again
+        {{ 'common.retry' | translate }}
       </ion-button>
     </div>

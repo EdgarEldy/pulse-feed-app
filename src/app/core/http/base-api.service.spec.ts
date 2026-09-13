@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { z } from 'zod';
 import { environment } from '../../../environments/environment';
+import { provideTestTranslations } from '../../testing/translate-testing';
 import { AppError } from '../models/app-error';
 import { BaseApiService, UploadEvent } from './base-api.service';
 
@@ -14,7 +15,7 @@ describe('BaseApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTestTranslations()],
     });
     service = TestBed.inject(BaseApiService);
     httpMock = TestBed.inject(HttpTestingController);
