@@ -10,11 +10,6 @@
     "cache": "We couldn't load the saved data on this device.",
     "validation": "The server sent back something unexpected. Please try again."
   },
-  "httpError": {
-    "noConnection": "No connection to the server.",
-    "sessionExpired": "Session expired.",
-    "unexpectedServer": "Unexpected server error."
-  },
   "offlineBanner": {
     "message": "You're offline. Showing saved content.",
     "dismiss": "Dismiss offline notice"
@@ -129,7 +124,8 @@
   },
   "avatarPicker": {
     "pick": "Take or choose a new avatar photo",
-    "uploadProgress": "Uploading avatar, {{progress}} percent complete"
+    "uploadProgress": "Uploading avatar, {{progress}} percent complete",
+    "photoReadError": "Could not read the picked photo."
   },
   "timeAgo": {
     "justNow": "just now",

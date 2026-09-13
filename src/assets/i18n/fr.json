@@ -10,11 +10,6 @@
     "cache": "Impossible de charger les données enregistrées sur cet appareil.",
     "validation": "Le serveur a renvoyé une réponse inattendue. Veuillez réessayer."
   },
-  "httpError": {
-    "noConnection": "Aucune connexion au serveur.",
-    "sessionExpired": "Session expirée.",
-    "unexpectedServer": "Erreur serveur inattendue."
-  },
   "offlineBanner": {
     "message": "Vous êtes hors ligne. Affichage du contenu enregistré.",
     "dismiss": "Fermer la notification hors ligne"
@@ -129,7 +124,8 @@
   },
   "avatarPicker": {
     "pick": "Prendre ou choisir une nouvelle photo de profil",
-    "uploadProgress": "Téléversement de l'avatar, {{progress}} pour cent terminé"
+    "uploadProgress": "Téléversement de l'avatar, {{progress}} pour cent terminé",
+    "photoReadError": "Impossible de lire la photo sélectionnée."
   },
   "timeAgo": {
     "justNow": "à l'instant",
