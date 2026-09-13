@@ -127,13 +127,7 @@ export class BaseApiService {
     if (this.isAppError(error)) {
       return throwError(() => error);
     }
-    return throwError(() =>
-      toAppError(error as HttpErrorResponse, {
-        noConnection: this.translate.instant('httpError.noConnection'),
-        sessionExpired: this.translate.instant('httpError.sessionExpired'),
-        unexpectedServer: this.translate.instant('httpError.unexpectedServer'),
-      }),
-    );
+    return throwError(() => toAppError(error as HttpErrorResponse, (key) => this.translate.instant(key)));
   }
 
   private isAppError(error: unknown): error is AppError {
