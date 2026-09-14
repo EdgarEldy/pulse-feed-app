@@ -75,6 +75,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `@capacitor/filesystem` | File caching | Caches downloaded post/avatar images to disk so they render instantly and remain available offline. |
 | `@ngx-translate/core` | Internationalization | Loads translation JSON files and swaps the active language at runtime, without a full app rebuild per locale. |
 | `zod` | Runtime validation | Validates API responses at the HTTP boundary, so a malformed payload becomes a typed error instead of a silent `undefined`. |
+| `@capacitor/assets` | App icon/splash generation | Generates every platform-specific app icon and splash screen size from one source image, run as a one-off CLI step rather than a runtime dependency. |
 | `@capacitor-community/google-signin` | Social login (bonus) | Drives the native Google account picker and returns an ID token to exchange with the backend. |
 | `@capacitor/push-notifications` | Push notifications (bonus) | Registers the device for push (via FCM/APNs under the hood), receives the device push token, and delivers foreground/background messages. |
 | `@capacitor/local-notifications` | Local notification display (bonus) | Renders a system notification when a push message arrives while the app is in the foreground. |
@@ -82,6 +83,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `TestBed` (`@angular/core/testing`) | Component testing | Angular's built-in harness for configuring a testing module, creating a `ComponentFixture`, and querying/interacting with rendered components. |
 | `@angular/common/http/testing` | HTTP test double | `provideHttpClientTesting()` + `HttpTestingController` intercept `HttpClient` requests in tests and return canned responses, so services run without a real backend. |
 | `playwright` | End-to-end testing | Drives the full app (real browser, real navigation) in black-box tests, including the web build. |
+| `@playwright/test` | End-to-end test runner | The `test`/`expect`/`defineConfig` APIs the e2e suite is actually written against; `playwright` alone is only the browser automation library, not a test runner. |
 | `eslint` + `angular-eslint` | Static analysis | Lint rule set enforced by `ng lint` and the CI pipeline. |
 
 ---
@@ -496,7 +498,7 @@ pulse-feed-app/
 │       │       ├── auth.guard.ts
 │       │       └── auth.guard.spec.ts
 │       ├── shared/
-│       │   ├── components/
+│       │   ├── components/             # new components: one subfolder each, four files (.ts, .html, .scss, .spec.ts)
 │       │   │   ├── loading-indicator.component.ts
 │       │   │   ├── loading-indicator.component.spec.ts
 │       │   │   ├── error-view.component.ts
@@ -505,6 +507,9 @@ pulse-feed-app/
 │       │   │   ├── offline-banner.component.spec.ts
 │       │   │   ├── app-card.component.ts
 │       │   │   └── app-card.component.spec.ts
+│       │   │       # ^ these four predate the per-component-folder convention and stay flat
+│       │   │       #   with an inline template unless a later branch touches them anyway;
+│       │   │       #   every new component from here on follows the subfolder shape above
 │       │   └── theme/
 │       │       └── variables.scss   # colors, spacing, radius, and breakpoint tokens
 │       └── features/
@@ -712,16 +717,16 @@ Project structure, Capacitor setup, `HttpClient` configuration, environment conf
 
 ### Tasks
 
-- [ ] `ionic start pulse-feed-app blank --type=angular --capacitor`, configure `eslint`/`angular-eslint`
-- [ ] Create `.env.example` with `API_BASE_URL`; load it into `src/environments/environment.ts` at build time
-- [ ] Configure `provideHttpClient(withInterceptors([...]))` in `app.config.ts`
-- [ ] Create `core/http/api-endpoints.ts` matching the [API Contract](#api-contract)
-- [ ] Create `core/models/app-error.ts` and `core/http/http-error.util.ts`
-- [ ] Create `core/http/base-api.service.ts`: a `providedIn: 'root'` service wrapping `HttpClient` with `get`/`post`/`patch`/`delete` methods returning `Observable<T>` (the parsed body), plus `postMultipartWithProgress<T>(path, formData)` returning `Observable<{ progress: number } | { progress: 100; result: T }>` (built on `HttpClient`'s `reportProgress: true, observe: 'events'` option) for the two upload flows that need it; every method takes an optional `zod` schema argument and validates the response against it before resolving, so schema validation is written once per call site's schema, not once per `*ApiService`; every method prefixes `API_BASE_URL`, serializes query params, and pipes errors through `http-error.util.ts`
-- [ ] Add `@capacitor/core`, run `npx cap add ios` and `npx cap add android`
-- [ ] Declare base routes (`/login`, `/feed`, `/posts/:id`, `/profile/:id`) in `app.routes.ts`, with lazy-loaded feature route files
-- [ ] Set up GitHub Actions `ci.yml` (`ng lint` + `ng test` + `ng build`)
-- [ ] Component test: the app shell boots and the placeholder route renders
+- [x] `ionic start pulse-feed-app blank --type=angular --capacitor`, configure `eslint`/`angular-eslint`
+- [x] Create `.env.example` with `API_BASE_URL`; load it into `src/environments/environment.ts` at build time
+- [x] Configure `provideHttpClient(withInterceptors([...]))` in `app.config.ts`
+- [x] Create `core/http/api-endpoints.ts` matching the [API Contract](#api-contract)
+- [x] Create `core/models/app-error.ts` and `core/http/http-error.util.ts`
+- [x] Create `core/http/base-api.service.ts`: a `providedIn: 'root'` service wrapping `HttpClient` with `get`/`post`/`patch`/`delete` methods returning `Observable<T>` (the parsed body), plus `postMultipartWithProgress<T>(path, formData)` returning `Observable<{ progress: number } | { progress: 100; result: T }>` (built on `HttpClient`'s `reportProgress: true, observe: 'events'` option) for the two upload flows that need it; every method takes an optional `zod` schema argument and validates the response against it before resolving, so schema validation is written once per call site's schema, not once per `*ApiService`; every method prefixes `API_BASE_URL`, serializes query params, and pipes errors through `http-error.util.ts`
+- [x] Add `@capacitor/core`, run `npx cap add ios` and `npx cap add android`
+- [x] Declare base routes (`/login`, `/feed`, `/posts/:id`, `/profile/:id`) in `app.routes.ts`, with lazy-loaded feature route files
+- [x] Set up GitHub Actions `ci.yml` (`ng lint` + `ng test` + `ng build`)
+- [x] Component test: the app shell boots and the placeholder route renders
 
 ---
 
@@ -731,13 +736,13 @@ Theming, layout primitives, and the reusable components every later branch will 
 
 ### Tasks
 
-- [ ] Customize `variables.scss` (Ionic CSS custom properties) for the app's color palette, light and dark mode via `prefers-color-scheme`
-- [ ] Define spacing, radius, and breakpoint tokens as SCSS variables in `variables.scss` to avoid magic numbers
-- [ ] Build a responsive layout primitive (an `AdaptiveGridComponent` using `ion-grid` that switches column count on tablet width via `ResizeObserver`), reused later by the post feed
-- [ ] Build shared components: `LoadingIndicatorComponent`, `ErrorViewComponent` (takes an `AppError` and renders a message per `kind`), `OfflineBannerComponent` (wired to real connectivity state in `feature/offline-and-sync`), `AppCardComponent`
-- [ ] Establish the ARIA labeling convention for icon-only buttons, applied to every shared component from the start
-- [ ] Scaffold `assets/i18n/en.json`, `assets/i18n/fr.json`, wire `@ngx-translate/core` (empty/base strings only; features extract their own strings as they are built)
-- [ ] Component test: `AdaptiveGridComponent` renders one column under a mobile width and multiple above a tablet breakpoint
+- [x] Customize `variables.scss` (Ionic CSS custom properties) for the app's color palette, light and dark mode via `prefers-color-scheme`
+- [x] Define spacing, radius, and breakpoint tokens as SCSS variables in `variables.scss` to avoid magic numbers
+- [x] Build a responsive layout primitive (an `AdaptiveGridComponent` using `ion-grid` that switches column count on tablet width via `ResizeObserver`), reused later by the post feed
+- [x] Build shared components: `LoadingIndicatorComponent`, `ErrorViewComponent` (takes an `AppError` and renders a message per `kind`), `OfflineBannerComponent` (wired to real connectivity state in `feature/offline-and-sync`), `AppCardComponent`
+- [x] Establish the ARIA labeling convention for icon-only buttons, applied to every shared component from the start
+- [x] Scaffold `assets/i18n/en.json`, `assets/i18n/fr.json`, wire `@ngx-translate/core` (empty/base strings only; features extract their own strings as they are built)
+- [x] Component test: `AdaptiveGridComponent` renders one column under a mobile width and multiple above a tablet breakpoint
 
 ---
 
@@ -747,12 +752,12 @@ TypeScript types shared across features, and the DTO mapping helpers each featur
 
 ### Tasks
 
-- [ ] Create `User`, `Post`, `Comment`, `Like` types (plain TypeScript interfaces, one file per feature, no Angular/HttpClient/Capacitor import)
-- [ ] Create `PostRow`/`CommentRow` types (the corresponding API type plus a local-only `pendingSync: boolean` field, see [Domain Model](#domain-model)); these are the types `SqliteTable<T>` and every `*LocalService` are parameterized with
-- [ ] Create matching DTO types and mapping functions to/from the [API Contract](#api-contract) shape, plus a `zod` schema per DTO; each `*ApiService` method passes its schema into the corresponding `BaseApiService` call instead of validating the response itself
-- [ ] Confirm `AppError` (from `feature/core-architecture`) covers every failure mode the API Contract can produce
-- [ ] Unit test: DTO-to-model mapping round-trip against a sample API payload, including a `zod` validation failure case
-- [ ] Unit test: mapping from `PostRow`/`CommentRow` back to the API's `Post`/`Comment` shape strips `pendingSync` and never sends it to `PostsApiService`/`CommentsApiService`
+- [x] Create `User`, `Post`, `Comment`, `Like` types (plain TypeScript interfaces, one file per feature, no Angular/HttpClient/Capacitor import)
+- [x] Create `PostRow`/`CommentRow` types (the corresponding API type plus a local-only `pendingSync: boolean` field, see [Domain Model](#domain-model)); these are the types `SqliteTable<T>` and every `*LocalService` are parameterized with
+- [x] Create matching DTO types and mapping functions to/from the [API Contract](#api-contract) shape, plus a `zod` schema per DTO; each `*ApiService` method passes its schema into the corresponding `BaseApiService` call instead of validating the response itself
+- [x] Confirm `AppError` (from `feature/core-architecture`) covers every failure mode the API Contract can produce
+- [x] Unit test: DTO-to-model mapping round-trip against a sample API payload, including a `zod` validation failure case
+- [x] Unit test: mapping from `PostRow`/`CommentRow` back to the API's `Post`/`Comment` shape strips `pendingSync` and never sends it to `PostsApiService`/`CommentsApiService`
 
 ---
 
@@ -762,20 +767,20 @@ The local persistence layer and the offline-first strategy every remote-backed f
 
 ### Tasks
 
-- [ ] Design the SQLite schema: `posts_cache`, `comments_cache` tables mirroring the API shape (as `PostRow`/`CommentRow`, including `pendingSync`), plus a `synced_at` column
-- [ ] Create `core/database/app-database.service.ts`: database opening, versioning, migrations via `@capacitor-community/sqlite`
-- [ ] Create `core/database/sqlite-table.ts`: a generic `SqliteTable<T>` class (constructor takes the table name and column list) implementing `getAll`/`upsert`/`upsertAll`/`delete`/`replaceId` (renames a row's primary key, used when a temporary id is reconciled), so no `*LocalService` writes raw SQL
-- [ ] Add `@capacitor/network`, create `ConnectivityService` (`isOnline` computed signal), and wire the `OfflineBannerComponent` built in `feature/design-system` to it
-- [ ] Create `core/offline/offline-first.util.ts`: a `loadOfflineFirst({ remote, cacheRead, cacheWrite })` function every `<Feature>Service.loadX()` calls, so the try-remote/fall-back-to-cache/write-through sequence is written once, not once per feature
-- [ ] Add a `pending_writes` table (`id`, `entity_type`, `operation`, `payload_json`, `temp_id` nullable, `created_at`) to queue mutations made while offline
-- [ ] Create `core/offline/sync.service.ts`: exposes `register<T>(reconciler)` and `enqueue(entityType, operation, payload, tempId?)` (see [Reconciling writes made offline](#reconciling-writes-made-offline)); replays queued writes strictly in order via the reconciler registered for each `entityType`, and stops (leaving the rest queued) on the first failure so writes never apply out of order
-- [ ] Trigger that replay both on every `ConnectivityService.isOnline` transition to `true` and once during app startup: a device can already be online when the app launches with writes still queued from a previous session, and an `effect()` on a signal only fires on a change, not on its initial value
-- [ ] Make the startup replay wait for `AppDatabaseService` to finish opening the database before querying `pending_writes`, rather than assuming a fixed initialization order between the two
-- [ ] Build `PostsLocalService` as the reference `*LocalService`, composed from `SqliteTable<PostRow>`, used as the template `comments` follows later
-- [ ] Unit test: `SqliteTable<T>` insert/read/delete/`replaceId` round-trip against an in-memory/test database
-- [ ] Unit test: `loadOfflineFirst` falls back to `cacheRead` when `remote` errors with a `network`-kind `AppError`, and propagates any other error kind untouched
-- [ ] Unit test: `SyncService` replays a queued write once `ConnectivityService.isOnline` flips to `true`, calls the registered reconciler's `onSynced` for a `create` operation, and leaves the write queued (without retrying out of order) on a repeated failure
-- [ ] Unit test: `SyncService` also replays any queued write during startup when `ConnectivityService.isOnline` is already `true` at that point
+- [x] Design the SQLite schema: `posts_cache`, `comments_cache` tables mirroring the API shape (as `PostRow`/`CommentRow`, including `pendingSync`), plus a `synced_at` column
+- [x] Create `core/database/app-database.service.ts`: database opening, versioning, migrations via `@capacitor-community/sqlite`
+- [x] Create `core/database/sqlite-table.ts`: a generic `SqliteTable<T>` class (constructor takes the table name and column list) implementing `getAll`/`upsert`/`upsertAll`/`delete`/`replaceId` (renames a row's primary key, used when a temporary id is reconciled), so no `*LocalService` writes raw SQL
+- [x] Add `@capacitor/network`, create `ConnectivityService` (`isOnline` computed signal), and wire the `OfflineBannerComponent` built in `feature/design-system` to it
+- [x] Create `core/offline/offline-first.util.ts`: a `loadOfflineFirst({ remote, cacheRead, cacheWrite })` function every `<Feature>Service.loadX()` calls, so the try-remote/fall-back-to-cache/write-through sequence is written once, not once per feature
+- [x] Add a `pending_writes` table (`id`, `entity_type`, `operation`, `payload_json`, `temp_id` nullable, `created_at`) to queue mutations made while offline
+- [x] Create `core/offline/sync.service.ts`: exposes `register<T>(reconciler)` and `enqueue(entityType, operation, payload, tempId?)` (see [Reconciling writes made offline](#reconciling-writes-made-offline)); replays queued writes strictly in order via the reconciler registered for each `entityType`, and stops (leaving the rest queued) on the first failure so writes never apply out of order
+- [x] Trigger that replay both on every `ConnectivityService.isOnline` transition to `true` and once during app startup: a device can already be online when the app launches with writes still queued from a previous session, and an `effect()` on a signal only fires on a change, not on its initial value
+- [x] Make the startup replay wait for `AppDatabaseService` to finish opening the database before querying `pending_writes`, rather than assuming a fixed initialization order between the two
+- [x] Build `PostsLocalService` as the reference `*LocalService`, composed from `SqliteTable<PostRow>`, used as the template `comments` follows later
+- [x] Unit test: `SqliteTable<T>` insert/read/delete/`replaceId` round-trip against an in-memory/test database
+- [x] Unit test: `loadOfflineFirst` falls back to `cacheRead` when `remote` errors with a `network`-kind `AppError`, and propagates any other error kind untouched
+- [x] Unit test: `SyncService` replays a queued write once `ConnectivityService.isOnline` flips to `true`, calls the registered reconciler's `onSynced` for a `create` operation, and leaves the write queued (without retrying out of order) on a repeated failure
+- [x] Unit test: `SyncService` also replays any queued write during startup when `ConnectivityService.isOnline` is already `true` at that point
 
 ---
 
@@ -792,17 +797,17 @@ Registration, login, logout, JWT/refresh token lifecycle, secure storage, route 
 
 ### Tasks
 
-- [ ] Create `SecureTokenStorageService` (`capacitor-secure-storage-plugin`) for access/refresh tokens
-- [ ] Create `authInterceptor` (functional `HttpInterceptorFn`): attaches `Authorization: Bearer <token>`, catches `401`, calls `/auth/refresh`, retries once, signs out on failure
-- [ ] Guard against concurrent refresh calls: if several requests hit `401` around the same time, only the first triggers `/auth/refresh`; the rest wait on that same in-flight `Observable` (shared via a `shareReplay(1)` held in `AuthService`) and retry once it resolves, instead of each firing its own refresh call
-- [ ] Create `AuthApiService` wrapping `HttpClient` calls to `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`
-- [ ] Create `AuthService` facade with a `currentUser` signal and an `isAuthenticated` computed signal, restoring session from stored tokens on app start via `APP_INITIALIZER`
-- [ ] Build `LoginPage`/`RegisterPage` with Reactive Forms (`FormGroup`, validators for email format and password length)
-- [ ] Create `authGuard` (`CanActivateFn`) reading `AuthService.isAuthenticated`, wired to the routes from `feature/core-architecture`
-- [ ] Surface API errors (invalid credentials, email already used) as an `ion-toast`
-- [ ] Unit test: `AuthService.signIn` sets an `unauthorized` `AppError` on a mocked 401 response (`provideHttpClientTesting()`); interceptor retries once after a successful refresh
-- [ ] Unit test: three simultaneous `401` responses trigger exactly one call to `/auth/refresh`, and all three original requests are retried once it resolves
-- [ ] Component test: `LoginPage` shows a validation error on empty submit; successful login navigates to the feed
+- [x] Create `SecureTokenStorageService` (`capacitor-secure-storage-plugin`) for access/refresh tokens
+- [x] Create `authInterceptor` (functional `HttpInterceptorFn`): attaches `Authorization: Bearer <token>`, catches `401`, calls `/auth/refresh`, retries once, signs out on failure
+- [x] Guard against concurrent refresh calls: if several requests hit `401` around the same time, only the first triggers `/auth/refresh`; the rest wait on that same in-flight `Observable` (shared via a `shareReplay(1)` held in `AuthService`) and retry once it resolves, instead of each firing its own refresh call
+- [x] Create `AuthApiService` wrapping `HttpClient` calls to `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`
+- [x] Create `AuthService` facade with a `currentUser` signal and an `isAuthenticated` computed signal, restoring session from stored tokens on app start via `APP_INITIALIZER`
+- [x] Build `LoginPage`/`RegisterPage` with Reactive Forms (`FormGroup`, validators for email format and password length)
+- [x] Create `authGuard` (`CanActivateFn`) reading `AuthService.isAuthenticated`, wired to the routes from `feature/core-architecture`
+- [x] Surface API errors (invalid credentials, email already used) as an `ion-toast`
+- [x] Unit test: `AuthService.signIn` sets an `unauthorized` `AppError` on a mocked 401 response (`provideHttpClientTesting()`); interceptor retries once after a successful refresh
+- [x] Unit test: three simultaneous `401` responses trigger exactly one call to `/auth/refresh`, and all three original requests are retried once it resolves
+- [x] Component test: `LoginPage` shows a validation error on empty submit; successful login navigates to the feed
 
 ---
 
@@ -819,14 +824,14 @@ User profile view/edit, avatar upload, accessibility pass on the profile pages. 
 
 ### Tasks
 
-- [ ] Create `UsersApiService` (built on `BaseApiService`; `GET /users/:id`, `PATCH /users/me`, `POST /users/me/avatar`)
-- [ ] Create `UsersService` facade exposing a `user` signal loaded via `loadUser(id: string)`; a `network`-kind `AppError` is surfaced like any other error here, not queued or cached
-- [ ] Build `ProfilePage`: avatar, name, the user's posts, with loading/error/data states rendered from the signal; the error state distinguishes "you're offline" from other failures using `AppError.kind`
-- [ ] Build `AvatarPickerComponent` using `@capacitor/camera`, upload via `UsersApiService` (which goes through `BaseApiService`) with progress events
-- [ ] Build `EditProfilePage` pre-filled from the current user; disable submission while `ConnectivityService.isOnline` is `false`, with a message explaining why
-- [ ] Verify the profile pages under a large system text-size setting; fill any ARIA gaps beyond the design system's defaults
-- [ ] Unit test: `UsersService.updateProfile` calls the API service with the correct payload
-- [ ] Component test: `ProfilePage` shows a loading state then the user's data
+- [x] Create `UsersApiService` (built on `BaseApiService`; `GET /users/:id`, `PATCH /users/me`, `POST /users/me/avatar`)
+- [x] Create `UsersService` facade exposing a `user` signal loaded via `loadUser(id: string)`; a `network`-kind `AppError` is surfaced like any other error here, not queued or cached
+- [x] Build `ProfilePage`: avatar, name, the user's posts, with loading/error/data states rendered from the signal; the error state distinguishes "you're offline" from other failures using `AppError.kind`
+- [x] Build `AvatarPickerComponent` using `@capacitor/camera`, upload via `UsersApiService` (which goes through `BaseApiService`) with progress events
+- [x] Build `EditProfilePage` pre-filled from the current user; disable submission while `ConnectivityService.isOnline` is `false`, with a message explaining why
+- [x] Verify the profile pages under a large system text-size setting; fill any ARIA gaps beyond the design system's defaults
+- [x] Unit test: `UsersService.updateProfile` calls the API service with the correct payload
+- [x] Component test: `ProfilePage` shows a loading state then the user's data
 
 ---
 
@@ -845,23 +850,23 @@ The full post lifecycle: feed, pagination, detail, create/edit/delete, image upl
 
 ### Tasks
 
-- [ ] Create `PostsApiService` (built on `BaseApiService`; one method per endpoint for `GET /posts`, `GET /posts/:id`, `POST /posts`, `PATCH /posts/:id`, `DELETE /posts/:id`, no direct `HttpClient` use)
-- [ ] Create `PostsLocalService` (composed from `SqliteTable<PostRow>` targeting `posts_cache`, following the reference pattern from `feature/offline-and-sync`, no raw SQL)
-- [ ] Create `PostsService` facade: `loadPosts()`/`loadMore()`/`loadPost(id)` call `loadOfflineFirst(...)` and track `nextCursor`; register a reconciler with `SyncService` for `entityType: 'post'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
-- [ ] Implement `createPost()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `posts` signal, then call `SyncService.enqueue('post', 'create', payload, tempId)`; on any other error kind, surface it without queuing
-- [ ] Implement `updatePost()`/`deletePost()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('post', 'update' | 'delete', payload)` (no `tempId`, since these target an existing real `id`)
-- [ ] Build `FeedPage` with `@for` and `track`, empty/loading/error/offline states, `ion-refresher` for pull-to-refresh
-- [ ] Add `ion-infinite-scroll` calling `loadMore()`, disabled once `nextCursor` is `null`
-- [ ] Build `PostCardComponent` using the `AdaptiveGridComponent`/`ResizeObserver` primitive from `feature/design-system`; show a pending-sync indicator and hide edit/delete actions when `post.pendingSync` is `true`, even for the author
-- [ ] Build `CreatePostPage`: Reactive Form, `@capacitor/camera`, multipart upload via `PostsApiService` (which goes through `BaseApiService`) with progress events; persist the picked image's local file URI so it can still be read and re-submitted if the post is created while offline
-- [ ] Render images with a caching `<img>` directive backed by `@capacitor/filesystem` (placeholder and error state)
-- [ ] Add a shared-element page transition between the feed thumbnail and the detail image (Ionic's built-in route transition, customized)
-- [ ] Animate `PostCardComponent` entry with the Angular Animations API (`trigger`/`transition`)
-- [ ] Business rule: only the author can edit/delete their post, and only once it is no longer `pendingSync`; hide those actions otherwise
-- [ ] Unit test: `PostsService.createPost` rejects empty title/content before calling the API service
-- [ ] Unit test: `PostsService.createPost` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
-- [ ] Unit test: the registered post reconciler's `onSynced` replaces the temporary row (in both `PostsLocalService` and the `posts` signal) with the server-assigned post
-- [ ] Component test: `FeedPage` renders one `PostCardComponent` per item from a mocked response; delete action hidden for non-authors and for posts still `pendingSync`
+- [x] Create `PostsApiService` (built on `BaseApiService`; one method per endpoint for `GET /posts`, `GET /posts/:id`, `POST /posts`, `PATCH /posts/:id`, `DELETE /posts/:id`, no direct `HttpClient` use)
+- [x] Create `PostsLocalService` (composed from `SqliteTable<PostRow>` targeting `posts_cache`, following the reference pattern from `feature/offline-and-sync`, no raw SQL)
+- [x] Create `PostsService` facade: `loadPosts()`/`loadMore()`/`loadPost(id)` call `loadOfflineFirst(...)` and track `nextCursor`; register a reconciler with `SyncService` for `entityType: 'post'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
+- [x] Implement `createPost()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `posts` signal, then call `SyncService.enqueue('post', 'create', payload, tempId)`; on any other error kind, surface it without queuing
+- [x] Implement `updatePost()`/`deletePost()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('post', 'update' | 'delete', payload)` (no `tempId`, since these target an existing real `id`)
+- [x] Build `FeedPage` with `@for` and `track`, empty/loading/error/offline states, `ion-refresher` for pull-to-refresh
+- [x] Add `ion-infinite-scroll` calling `loadMore()`, disabled once `nextCursor` is `null`
+- [x] Build `PostCardComponent` using the `AdaptiveGridComponent`/`ResizeObserver` primitive from `feature/design-system`; show a pending-sync indicator and hide edit/delete actions when `post.pendingSync` is `true`, even for the author
+- [x] Build `CreatePostPage`: Reactive Form, `@capacitor/camera`, multipart upload via `PostsApiService` (which goes through `BaseApiService`) with progress events; persist the picked image's local file URI so it can still be read and re-submitted if the post is created while offline
+- [x] Render images with a caching `<img>` directive backed by `@capacitor/filesystem` (placeholder and error state)
+- [x] Add a shared-element page transition between the feed thumbnail and the detail image (Ionic's built-in route transition, customized)
+- [x] Animate `PostCardComponent` entry with the Angular Animations API (`trigger`/`transition`)
+- [x] Business rule: only the author can edit/delete their post, and only once it is no longer `pendingSync`; hide those actions otherwise
+- [x] Unit test: `PostsService.createPost` rejects empty title/content before calling the API service
+- [x] Unit test: `PostsService.createPost` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
+- [x] Unit test: the registered post reconciler's `onSynced` replaces the temporary row (in both `PostsLocalService` and the `posts` signal) with the server-assigned post
+- [x] Component test: `FeedPage` renders one `PostCardComponent` per item from a mocked response; delete action hidden for non-authors and for posts still `pendingSync`
 
 ---
 
@@ -879,18 +884,18 @@ Comments list, creation, deletion, keyboard and viewport handling.
 
 ### Tasks
 
-- [ ] Create `CommentsApiService` (built on `BaseApiService`; `GET /posts/:postId/comments`, `POST /posts/:postId/comments`, `DELETE /comments/:id`)
-- [ ] Create `CommentsLocalService` (composed from `SqliteTable<CommentRow>` targeting `comments_cache`)
-- [ ] Create `CommentsService` facade: `loadComments(postId)` calls `loadOfflineFirst(...)` and tracks `nextCursor`; register a reconciler with `SyncService` for `entityType: 'comment'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
-- [ ] Implement `addComment()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `comments` signal, then call `SyncService.enqueue('comment', 'create', payload, tempId)`
-- [ ] Implement `deleteComment()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('comment', 'delete', payload)` (no `tempId`, targets an existing real `id`)
-- [ ] Build `CommentsSectionComponent` with relative dates (a small `timeAgo` pipe); show a pending-sync indicator on `CommentTileComponent` when `comment.pendingSync` is `true`
-- [ ] Open comment input in an `ion-modal` with the keyboard auto-focused on the input
-- [ ] Handle Ionic's keyboard-aware viewport resizing and safe-area insets so the input stays visible above the keyboard
-- [ ] Business rule: a comment can be deleted by its author or by the post's author, and only once it is no longer `pendingSync`
-- [ ] Unit test: `CommentsService.addComment` rejects empty content
-- [ ] Unit test: `CommentsService.addComment` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
-- [ ] Component test: submitting `CommentInputComponent` calls the service with the typed content and clears the field
+- [x] Create `CommentsApiService` (built on `BaseApiService`; `GET /posts/:postId/comments`, `POST /posts/:postId/comments`, `DELETE /comments/:id`)
+- [x] Create `CommentsLocalService` (composed from `SqliteTable<CommentRow>` targeting `comments_cache`)
+- [x] Create `CommentsService` facade: `loadComments(postId)` calls `loadOfflineFirst(...)` and tracks `nextCursor`; register a reconciler with `SyncService` for `entityType: 'comment'` per [Reconciling writes made offline](#reconciling-writes-made-offline)
+- [x] Implement `addComment()`: on a `network`-kind `AppError`, generate a `temp-<uuid>` id, optimistically upsert a `pendingSync: true` row locally and into the `comments` signal, then call `SyncService.enqueue('comment', 'create', payload, tempId)`
+- [x] Implement `deleteComment()` the same way for a `network`-kind `AppError`, queuing via `SyncService.enqueue('comment', 'delete', payload)` (no `tempId`, targets an existing real `id`)
+- [x] Build `CommentsSectionComponent` with relative dates (a small `timeAgo` pipe); show a pending-sync indicator on `CommentTileComponent` when `comment.pendingSync` is `true`
+- [x] Open comment input in an `ion-modal` with the keyboard auto-focused on the input
+- [x] Handle Ionic's keyboard-aware viewport resizing and safe-area insets so the input stays visible above the keyboard
+- [x] Business rule: a comment can be deleted by its author or by the post's author, and only once it is no longer `pendingSync`
+- [x] Unit test: `CommentsService.addComment` rejects empty content
+- [x] Unit test: `CommentsService.addComment` on a mocked `network` `AppError` upserts a `pendingSync: true` row with a `temp-` id and calls `SyncService.enqueue`
+- [x] Component test: submitting `CommentInputComponent` calls the service with the typed content and clears the field
 
 ---
 
@@ -906,15 +911,15 @@ Optimistic UI toggle, explicit animation.
 
 ### Tasks
 
-- [ ] Create `LikesApiService` (built on `BaseApiService`; `POST /posts/:postId/likes` to toggle, `GET /posts/:postId/likes/me`)
-- [ ] Create a `LikesService` facade providing per-post state (`isLiked` and `likesCount` signals, `toggle(postId)` method)
-- [ ] Build `LikeButtonComponent`: icon/count change immediately on tap (optimistic), ahead of the server response
-- [ ] Implement `toggle()`: on success, reconcile the optimistic state with the API response; on a `network`-kind `AppError`, keep the optimistic state and call `SyncService.enqueue('like', 'update', { postId })` with no `tempId` and no reconciler registration, since the composite key (`userId`, `postId`) is already known and no server-generated id is ever produced by this endpoint
-- [ ] On any non-`network` error kind (for example the post no longer exists), revert the optimistic state and surface a discreet error message
-- [ ] Build an explicit animation on the heart icon with the Angular Animations API (scale trigger on toggle)
-- [ ] Unit test: `LikesService.toggle` maps the API response to the correct liked/unliked state
-- [ ] Unit test: `LikesService.toggle` on a mocked `network` `AppError` keeps the optimistic state and calls `SyncService.enqueue` without a `tempId`
-- [ ] Component test: tapping `LikeButtonComponent` flips its icon state immediately, then reconciles with the mocked response
+- [x] Create `LikesApiService` (built on `BaseApiService`; `POST /posts/:postId/likes` to toggle, `GET /posts/:postId/likes/me`)
+- [x] Create a `LikesService` facade providing per-post state (`isLiked` and `likesCount` signals, `toggle(postId)` method)
+- [x] Build `LikeButtonComponent`: icon/count change immediately on tap (optimistic), ahead of the server response
+- [x] Implement `toggle()`: on success, reconcile the optimistic state with the API response; on a `network`-kind `AppError`, keep the optimistic state and call `SyncService.enqueue('like', 'update', { postId })` with no `tempId` and no reconciler registration, since the composite key (`userId`, `postId`) is already known and no server-generated id is ever produced by this endpoint
+- [x] On any non-`network` error kind (for example the post no longer exists), revert the optimistic state and surface a discreet error message
+- [x] Build an explicit animation on the heart icon with the Angular Animations API (scale trigger on toggle)
+- [x] Unit test: `LikesService.toggle` maps the API response to the correct liked/unliked state
+- [x] Unit test: `LikesService.toggle` on a mocked `network` `AppError` keeps the optimistic state and calls `SyncService.enqueue` without a `tempId`
+- [x] Component test: tapping `LikeButtonComponent` flips its icon state immediately, then reconciles with the mocked response
 
 ---
 
@@ -924,14 +929,14 @@ App-wide accessibility and i18n pass, full test suite, app icons/splash, and the
 
 ### Tasks
 
-- [ ] Audit the app with axe DevTools or Lighthouse's accessibility pass; fix any remaining gaps across all pages
-- [ ] Extract every hardcoded string built so far into `en.json`/`fr.json`, verify runtime language switching end to end
-- [ ] Use `@ngx-translate/core`'s ICU plural syntax for at least the comments/likes counters (for example `{count, plural, =0 {no comments} =1 {1 comment} other {# comments}}`), so the pluralization concept from the Concept Map is actually exercised, not just declared
-- [ ] Fill any remaining unit/component test coverage gaps across prior branches
-- [ ] One end-to-end Playwright test: sign up, create a post, like it, comment on it
-- [ ] Generate app icons and splash screen (`@capacitor/assets`)
-- [ ] Extend `ci.yml`: lint -> test -> build web -> `npx cap sync` on every PR to `master`
-- [ ] Document Android keystore signing and iOS certificate/provisioning profile setup for a release build
+- [x] Audit the app with axe DevTools or Lighthouse's accessibility pass; fix any remaining gaps across all pages
+- [x] Extract every hardcoded string built so far into `en.json`/`fr.json`, verify runtime language switching end to end
+- [x] Use `@ngx-translate/core`'s ICU plural syntax for at least the comments/likes counters (for example `{count, plural, =0 {no comments} =1 {1 comment} other {# comments}}`), so the pluralization concept from the Concept Map is actually exercised, not just declared
+- [x] Fill any remaining unit/component test coverage gaps across prior branches
+- [x] One end-to-end Playwright test: sign up, create a post, like it, comment on it
+- [x] Generate app icons and splash screen (`@capacitor/assets`)
+- [x] Extend `ci.yml`: lint -> test -> build web -> `npx cap sync` on every PR to `master`
+- [x] Document Android keystore signing and iOS certificate/provisioning profile setup for a release build
 
 ---
 

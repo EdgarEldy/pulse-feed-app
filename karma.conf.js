@@ -34,6 +34,18 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
+    // Chrome refuses to run its own sandbox as root, which is how GitHub
+    // Actions' runners execute steps by default; without --no-sandbox the
+    // browser fails to launch and karma just hangs waiting for it to
+    // connect instead of failing loudly. npm run test:ci uses this
+    // launcher instead of plain ChromeHeadless; a local `npm test` never
+    // needs it.
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+      },
+    },
     singleRun: false,
     restartOnFileChange: true,
   });

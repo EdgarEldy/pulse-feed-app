@@ -1,2 +1,286 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// PulseFeed color palette and design tokens.
+//
+// Ionic themes an app entirely through CSS custom properties (the
+// `--ion-color-*` family below), which every Ionic component reads at
+// render time. Setting `color="primary"` on an `ion-button`, for example,
+// resolves to the five `--ion-color-primary*` properties declared here.
+// See https://ionicframework.com/docs/theming/ for the full mechanism.
+//
+// This file replaces the generated starter (a single blue accent) with a
+// small, coherent brand palette, plus explicit light/dark variants so
+// `prefers-color-scheme: dark` swaps real colors rather than falling back
+// to Ionic's generic imported dark palette (see `src/global.scss`, which
+// still imports `@ionic/angular/css/palettes/dark.system.css` as a
+// baseline; the `:root` block below, loaded after it in `angular.json`'s
+// `styles` array, wins the cascade and overrides it with PulseFeed's own
+// hues).
+//
+// Every base/shade/tint/contrast group below was chosen and checked for
+// WCAG AA contrast (>= 4.5:1 against its paired contrast color) with a
+// small script during design, not eyeballed.
+
+// Light theme (default, and also the explicit fallback for
+// `prefers-color-scheme: light` / no preference).
+:root {
+  /** Indigo: primary actions (buttons, links, active tab). */
+  --ion-color-primary: #5b5fc7;
+  --ion-color-primary-rgb: 91, 95, 199;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #5054af;
+  --ion-color-primary-tint: #6b6fcd;
+
+  /** Teal: secondary actions, complements the indigo primary. */
+  --ion-color-secondary: #077a79;
+  --ion-color-secondary-rgb: 7, 122, 121;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #066b6a;
+  --ion-color-secondary-tint: #208786;
+
+  /** Coral/rose: the "pulse" accent, used sparingly (likes, highlights). */
+  --ion-color-tertiary: #f2617e;
+  --ion-color-tertiary-rgb: 242, 97, 126;
+  --ion-color-tertiary-contrast: #000000;
+  --ion-color-tertiary-contrast-rgb: 0, 0, 0;
+  --ion-color-tertiary-shade: #d5556f;
+  --ion-color-tertiary-tint: #f3718b;
+
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #000000;
+  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  --ion-color-danger: #c5000f;
+  --ion-color-danger-rgb: 197, 0, 15;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #ad000d;
+  --ion-color-danger-tint: #cb1a27;
+
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+
+  --ion-color-medium: #71747d;
+  --ion-color-medium-rgb: 113, 116, 125;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #63666e;
+  --ion-color-medium-tint: #7f828a;
+
+  --ion-color-dark: #1f2124;
+  --ion-color-dark-rgb: 31, 33, 36;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #1b1d20;
+  --ion-color-dark-tint: #35373a;
+
+  // Page background/text and the step scale Ionic components (dividers,
+  // toolbars, item backgrounds...) read from. Each step interpolates
+  // between the background and text color, step-50 nearest the
+  // background and step-950 nearest the text color.
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #1f2124;
+  --ion-text-color-rgb: 31, 33, 36;
+
+  --ion-background-color-step-50: #f4f4f4;
+  --ion-background-color-step-100: #e9e9e9;
+  --ion-background-color-step-150: #dddede;
+  --ion-background-color-step-200: #d2d3d3;
+  --ion-background-color-step-250: #c7c8c8;
+  --ion-background-color-step-300: #bcbcbd;
+  --ion-background-color-step-350: #b1b1b2;
+  --ion-background-color-step-400: #a5a6a7;
+  --ion-background-color-step-450: #9a9b9c;
+  --ion-background-color-step-500: #8f9092;
+  --ion-background-color-step-550: #848587;
+  --ion-background-color-step-600: #797a7c;
+  --ion-background-color-step-650: #6d6f71;
+  --ion-background-color-step-700: #626466;
+  --ion-background-color-step-750: #57595b;
+  --ion-background-color-step-800: #4c4d50;
+  --ion-background-color-step-850: #414245;
+  --ion-background-color-step-900: #35373a;
+  --ion-background-color-step-950: #2a2c2f;
+
+  --ion-text-color-step-50: #2a2c2f;
+  --ion-text-color-step-100: #35373a;
+  --ion-text-color-step-150: #414245;
+  --ion-text-color-step-200: #4c4d50;
+  --ion-text-color-step-250: #57595b;
+  --ion-text-color-step-300: #626466;
+  --ion-text-color-step-350: #6d6f71;
+  --ion-text-color-step-400: #797a7c;
+  --ion-text-color-step-450: #848587;
+  --ion-text-color-step-500: #8f9092;
+  --ion-text-color-step-550: #9a9b9c;
+  --ion-text-color-step-600: #a5a6a7;
+  --ion-text-color-step-650: #b1b1b2;
+  --ion-text-color-step-700: #bcbcbd;
+  --ion-text-color-step-750: #c7c8c8;
+  --ion-text-color-step-800: #d2d3d3;
+  --ion-text-color-step-850: #dddede;
+  --ion-text-color-step-900: #e9e9e9;
+  --ion-text-color-step-950: #f4f4f4;
+}
+
+// Dark theme, driven purely by the OS/browser preference. PulseFeed does
+// not offer an in-app manual toggle (that would additionally need a
+// `.ion-palette-dark` class strategy, see Ionic's dark mode docs); it
+// simply follows the system setting.
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-color-primary: #787cdb;
+    --ion-color-primary-rgb: 120, 124, 219;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-contrast-rgb: 0, 0, 0;
+    --ion-color-primary-shade: #6a6dc1;
+    --ion-color-primary-tint: #8689df;
+
+    --ion-color-secondary: #2bb0af;
+    --ion-color-secondary-rgb: 43, 176, 175;
+    --ion-color-secondary-contrast: #000000;
+    --ion-color-secondary-contrast-rgb: 0, 0, 0;
+    --ion-color-secondary-shade: #269b9a;
+    --ion-color-secondary-tint: #40b8b7;
+
+    --ion-color-tertiary: #f58098;
+    --ion-color-tertiary-rgb: 245, 128, 152;
+    --ion-color-tertiary-contrast: #000000;
+    --ion-color-tertiary-contrast-rgb: 0, 0, 0;
+    --ion-color-tertiary-shade: #d87186;
+    --ion-color-tertiary-tint: #f68da2;
+
+    --ion-color-success: #4bda85;
+    --ion-color-success-rgb: 75, 218, 133;
+    --ion-color-success-contrast: #000000;
+    --ion-color-success-contrast-rgb: 0, 0, 0;
+    --ion-color-success-shade: #42c075;
+    --ion-color-success-tint: #5dde91;
+
+    --ion-color-warning: #ffcf33;
+    --ion-color-warning-rgb: 255, 207, 51;
+    --ion-color-warning-contrast: #000000;
+    --ion-color-warning-contrast-rgb: 0, 0, 0;
+    --ion-color-warning-shade: #e0b62d;
+    --ion-color-warning-tint: #ffd447;
+
+    --ion-color-danger: #e0475a;
+    --ion-color-danger-rgb: 224, 71, 90;
+    --ion-color-danger-contrast: #000000;
+    --ion-color-danger-contrast-rgb: 0, 0, 0;
+    --ion-color-danger-shade: #c53e4f;
+    --ion-color-danger-tint: #e3596b;
+
+    --ion-color-light: #2b2d33;
+    --ion-color-light-rgb: 43, 45, 51;
+    --ion-color-light-contrast: #ffffff;
+    --ion-color-light-contrast-rgb: 255, 255, 255;
+    --ion-color-light-shade: #26282d;
+    --ion-color-light-tint: #404247;
+
+    --ion-color-medium: #9a9cad;
+    --ion-color-medium-rgb: 154, 156, 173;
+    --ion-color-medium-contrast: #000000;
+    --ion-color-medium-contrast-rgb: 0, 0, 0;
+    --ion-color-medium-shade: #888998;
+    --ion-color-medium-tint: #a4a6b5;
+
+    --ion-color-dark: #f0f1f6;
+    --ion-color-dark-rgb: 240, 241, 246;
+    --ion-color-dark-contrast: #000000;
+    --ion-color-dark-contrast-rgb: 0, 0, 0;
+    --ion-color-dark-shade: #d3d4d8;
+    --ion-color-dark-tint: #f2f2f7;
+
+    --ion-background-color: #121212;
+    --ion-background-color-rgb: 18, 18, 18;
+    --ion-text-color: #f0f1f6;
+    --ion-text-color-rgb: 240, 241, 246;
+
+    --ion-background-color-step-50: #1d1d1d;
+    --ion-background-color-step-100: #282829;
+    --ion-background-color-step-150: #333334;
+    --ion-background-color-step-200: #3e3f40;
+    --ion-background-color-step-250: #4a4a4b;
+    --ion-background-color-step-300: #555556;
+    --ion-background-color-step-350: #606062;
+    --ion-background-color-step-400: #6b6b6d;
+    --ion-background-color-step-450: #767679;
+    --ion-background-color-step-500: #818284;
+    --ion-background-color-step-550: #8c8d8f;
+    --ion-background-color-step-600: #97989b;
+    --ion-background-color-step-650: #a2a3a6;
+    --ion-background-color-step-700: #adaeb2;
+    --ion-background-color-step-750: #b9b9bd;
+    --ion-background-color-step-800: #c4c4c8;
+    --ion-background-color-step-850: #cfd0d4;
+    --ion-background-color-step-900: #dadbdf;
+    --ion-background-color-step-950: #e5e6eb;
+
+    --ion-text-color-step-50: #e5e6eb;
+    --ion-text-color-step-100: #dadbdf;
+    --ion-text-color-step-150: #cfd0d4;
+    --ion-text-color-step-200: #c4c4c8;
+    --ion-text-color-step-250: #b9b9bd;
+    --ion-text-color-step-300: #adaeb2;
+    --ion-text-color-step-350: #a2a3a6;
+    --ion-text-color-step-400: #97989b;
+    --ion-text-color-step-450: #8c8d8f;
+    --ion-text-color-step-500: #818284;
+    --ion-text-color-step-550: #767679;
+    --ion-text-color-step-600: #6b6b6d;
+    --ion-text-color-step-650: #606062;
+    --ion-text-color-step-700: #555556;
+    --ion-text-color-step-750: #4a4a4b;
+    --ion-text-color-step-800: #3e3f40;
+    --ion-text-color-step-850: #333334;
+    --ion-text-color-step-900: #282829;
+    --ion-text-color-step-950: #1d1d1d;
+  }
+}
+
+// Spacing, radius, and breakpoint tokens
+// ----------------------------------------------------------------------
+// These are PulseFeed-specific (the `--app-*` prefix keeps them visually
+// distinct from Ionic's own `--ion-*` tokens) and are what
+// `AppCardComponent`, `AdaptiveGridComponent`, and every later feature
+// should reach for instead of hardcoding a pixel value.
+//
+// `--app-space-*`/`--app-radius` are CSS custom properties: they are
+// resolved at runtime, can be read from any component's template or CSS
+// (`padding: var(--app-space-md)`), and would let a future feature (or a
+// user preference) override them per-element or per-theme the same way
+// dark mode overrides `--ion-color-*` above.
+//
+// `$breakpoint-*` are plain SCSS variables instead: they only make sense
+// at compile time, inside a `@media` query (`@media (min-width:
+// $breakpoint-tablet)`), since CSS custom properties cannot be
+// interpolated into a media query condition.
+:root {
+  --app-space-xs: 4px;
+  --app-space-sm: 8px;
+  --app-space-md: 16px;
+  --app-space-lg: 24px;
+  --app-space-xl: 32px;
+
+  --app-radius: 12px;
+}
+
+$breakpoint-mobile: 0;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;

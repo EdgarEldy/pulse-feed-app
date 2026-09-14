@@ -1,0 +1,16 @@
+<ion-button
+  fill="clear"
+  size="small"
+  class="like-button"
+  [attr.aria-label]="ariaLabel()"
+  (click)="onTap($event)"
+>
+  <ion-icon
+    [@heartBeat]="(likeState()?.isLiked ?? initialIsLiked()).toString()"
+    [name]="(likeState()?.isLiked ?? initialIsLiked()) ? 'heart' : 'heart-outline'"
+    [color]="(likeState()?.isLiked ?? initialIsLiked()) ? 'danger' : undefined"
+    aria-hidden="true"
+    slot="start"
+  ></ion-icon>
+  <span aria-hidden="true">{{ 'likes.count' | translate: { count: likeState()?.likesCount ?? initialLikesCount() } }}</span>
+</ion-button>

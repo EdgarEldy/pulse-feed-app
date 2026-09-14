@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'comments.input.title' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [attr.aria-label]="'comments.input.close' | translate" (click)="onClose()">&#x2715;</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-textarea
+    #autoFocus
+    [placeholder]="'comments.input.placeholder' | translate"
+    [autoGrow]="true"
+    [formControl]="content"
+  ></ion-textarea>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" [disabled]="!content.value?.trim()" (click)="onSubmit()">
+      {{ 'comments.input.submit' | translate }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

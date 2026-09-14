@@ -1,0 +1,6 @@
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  --padding-start: 0;
+  --padding-end: var(--app-space-xs);
+}

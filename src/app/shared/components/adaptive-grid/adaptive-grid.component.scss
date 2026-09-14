@@ -1,0 +1,5 @@
+.adaptive-grid__row {
+  display: grid;
+  grid-template-columns: repeat(var(--adaptive-grid-columns, 1), minmax(0, 1fr));
+  gap: var(--app-space-md, 16px);
+}

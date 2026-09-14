@@ -1,0 +1,20 @@
+    @if (isOffline) {
+      <div class="offline-banner" role="status">
+        <ion-icon name="cloud-offline-outline" aria-hidden="true"></ion-icon>
+        <span class="offline-banner__text">You're offline. Showing saved content.</span>
+        <!--
+          Not functionally dismissible yet, disabled on purpose so it does
+          not mislead a screen reader into thinking a tap actually hides
+          the banner. feature/offline-and-sync's ConnectivityService will
+          drive isOffline for real and can wire this up then.
+        -->
+        <ion-button
+          fill="clear"
+          size="small"
+          disabled
+          aria-label="Dismiss offline notice"
+        >
+          <ion-icon slot="icon-only" name="close-outline" aria-hidden="true"></ion-icon>
+        </ion-button>
+      </div>
+    }

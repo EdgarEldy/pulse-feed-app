@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'profile.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @let profileState = user();
+
+  @if (profileState.status === 'loading' || profileState.status === 'idle') {
+    <app-loading-indicator [label]="'profile.loading' | translate" />
+  } @else if (profileState.status === 'error') {
+    <app-error-view [error]="profileState.error" (retry)="onRetry()" />
+  } @else if (profileState.status === 'success') {
+    <div class="profile">
+      <div class="profile__avatar">
+        @if (profileState.data.photoUrl) {
+          <img
+            [src]="profileState.data.photoUrl"
+            [alt]="'common.avatarAlt' | translate: { name: profileState.data.displayName }"
+            class="profile__avatar-img"
+          />
+        } @else {
+          <ion-icon
+            name="person-circle-outline"
+            class="profile__avatar-placeholder"
+            role="img"
+            [attr.aria-label]="'common.avatarAlt' | translate: { name: profileState.data.displayName }"
+          ></ion-icon>
+        }
+      </div>
+
+      <h1 class="profile__name">{{ profileState.data.displayName }}</h1>
+
+      <section class="profile__posts" [attr.aria-label]="'profile.postsHeading' | translate">
+        <h2>{{ 'profile.postsHeading' | translate }}</h2>
+        <p class="profile__posts-placeholder">{{ 'profile.postsPlaceholder' | translate }}</p>
+      </section>
+    </div>
+  }
+</ion-content>

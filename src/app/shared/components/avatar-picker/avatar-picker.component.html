@@ -1,0 +1,23 @@
+<div class="avatar-picker">
+  @let pickerState = state();
+
+  <ion-button
+    fill="clear"
+    shape="round"
+    [attr.aria-label]="'avatarPicker.pick' | translate"
+    [disabled]="pickerState.status === 'uploading'"
+    (click)="pickAndUpload()"
+  >
+    <ion-icon slot="icon-only" name="camera-outline" aria-hidden="true"></ion-icon>
+  </ion-button>
+
+  @if (pickerState.status === 'uploading') {
+    <ion-progress-bar
+      [value]="pickerState.progress / 100"
+      [attr.aria-label]="'avatarPicker.uploadProgress' | translate: { progress: pickerState.progress }"
+    ></ion-progress-bar>
+    <p class="avatar-picker__progress-text">{{ pickerState.progress }}%</p>
+  } @else if (pickerState.status === 'error') {
+    <app-error-view [error]="pickerState.error" (retry)="pickAndUpload()" />
+  }
+</div>

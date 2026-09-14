@@ -29,10 +29,27 @@ log.txt
 /out-tsc
 /bazel-out
 
+# Playwright
+/test-results
+/playwright-report
+/blob-report
+
 # Node
 /node_modules
 npm-debug.log
 yarn-error.log
+
+# Environment
+.env
+/src/environments/environment.ts
+/src/environments/environment.prod.ts
+
+# Release signing secrets (see docs/release-signing.md)
+android/key.properties
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
 
 # IDEs and editors
 .idea/

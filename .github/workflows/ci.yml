@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
+
+      # Only exercised on the way to master: develop is where feature
+      # branches land day to day and never itself ships to a device, so
+      # there is nothing gained from copying the web build into the native
+      # projects on every one of those merges. A PR into master is by
+      # definition release-bound, and `cap sync` is exactly the step a real
+      # release would need to run right before an Android/iOS build, so
+      # this is where it earns catching a broken sync before it reaches
+      # that point.
+      #
+      # `github.base_ref` is only ever set on a `pull_request` event; a
+      # merge into master also fires this workflow's own `push` trigger
+      # (base_ref empty there), which the first half of this condition
+      # exists to catch too. Without it, this step only ever ran during the
+      # PR's own check run and never against master's actual post-merge
+      # state, so a broken sync introduced by, say, two PRs merging in an
+      # order neither was reviewed against would never be caught.
+      - name: Sync Capacitor native projects
+        if: github.base_ref == 'master' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+        run: npx cap sync

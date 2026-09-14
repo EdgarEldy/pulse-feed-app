@@ -1,0 +1,32 @@
+<section [attr.aria-label]="'comments.title' | translate">
+  <h2>{{ 'comments.title' | translate }}</h2>
+
+  @let state = comments();
+
+  @if (state.status === 'loading' || state.status === 'idle') {
+    <app-loading-indicator />
+  } @else if (state.status === 'error') {
+    <app-error-view [error]="state.error" (retry)="onRetry()" />
+  } @else if (state.status === 'success') {
+    @for (comment of state.data; track comment.id) {
+      <app-comment-tile
+        [comment]="comment"
+        [canDelete]="canDelete(comment)"
+        (delete)="onDelete(comment.id)"
+      />
+    }
+
+    @if (state.data.length === 0) {
+      <p class="no-comments">{{ 'comments.empty' | translate }}</p>
+    }
+
+    @if (state.nextCursor) {
+      <ion-button expand="block" fill="clear" (click)="loadMore()">{{ 'comments.loadMore' | translate }}</ion-button>
+    }
+  }
+
+  <ion-button expand="block" (click)="openCommentInput()">
+    <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+    {{ 'comments.add' | translate }}
+  </ion-button>
+</section>
