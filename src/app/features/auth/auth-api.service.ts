@@ -33,6 +33,19 @@ export class AuthApiService {
     return this.api.post<AuthSessionDto>(apiEndpoints.auth.login, { email, password }, authSessionDtoSchema).pipe(map(toAuthSession));
   }
 
+  /**
+   * `POST /auth/google` per the API Contract: exchanges a Google-issued ID
+   * token for an app session, same `AuthSessionDto` shape `login`/`register`
+   * already return. If the backend rejects this because the email is
+   * already registered under a password-based account, that comes back as
+   * a normal non-2xx response, already turned into an `AppError` by
+   * `BaseApiService` like any other failure here; there is no separate
+   * status code or response shape to special-case for it.
+   */
+  google(idToken: string): Observable<AuthSession> {
+    return this.api.post<AuthSessionDto>(apiEndpoints.auth.google, { idToken }, authSessionDtoSchema).pipe(map(toAuthSession));
+  }
+
   refresh(refreshToken: string): Observable<RefreshedSession> {
     return this.api
       .post<RefreshedSessionDto>(apiEndpoints.auth.refresh, { refreshToken }, refreshedSessionDtoSchema)

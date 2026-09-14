@@ -11,6 +11,8 @@ class FakeAuthService {
   private readonly stateSignal = signal<AuthState>({ status: 'idle' });
   readonly authState: Signal<AuthState> = this.stateSignal.asReadonly();
   readonly signIn = jasmine.createSpy('signIn');
+  readonly signInWithGoogle = jasmine.createSpy('signInWithGoogle');
+  readonly completeGoogleSignInRedirect = jasmine.createSpy('completeGoogleSignInRedirect');
 
   setState(state: AuthState): void {
     this.stateSignal.set(state);

@@ -43,6 +43,13 @@
     </ion-button>
   </form>
 
+  <p class="auth-divider">{{ 'auth.google.divider' | translate }}</p>
+
+  <ion-button expand="block" fill="outline" [disabled]="isSubmitting()" (click)="onContinueWithGoogle()">
+    <ion-icon name="logo-google" slot="start" aria-hidden="true"></ion-icon>
+    {{ 'auth.google.continue' | translate }}
+  </ion-button>
+
   <p class="auth-switch">
     {{ 'auth.login.switchPrompt' | translate }}
     <a routerLink="/login/register">{{ 'auth.login.switchAction' | translate }}</a>

@@ -58,6 +58,12 @@ class FakeAuthenticatedAuthService {
   resetState(): void {
     this.stateSignal.set({ status: 'idle' });
   }
+
+  completeGoogleSignInRedirect(): void {
+    // No-op: this app-shell smoke test never routes to LoginPage while
+    // authenticated, but LoginPage's constructor calls this unconditionally
+    // whenever it is created, so the fake still needs it defined.
+  }
 }
 
 describe('AppComponent', () => {
@@ -111,6 +117,11 @@ describe('AppComponent (unauthenticated)', () => {
 
     resetState(): void {
       this.stateSignal.set({ status: 'idle' });
+    }
+
+    completeGoogleSignInRedirect(): void {
+      // No-op: this test navigates to '/login', which does construct
+      // LoginPage, whose constructor calls this unconditionally.
     }
   }
 

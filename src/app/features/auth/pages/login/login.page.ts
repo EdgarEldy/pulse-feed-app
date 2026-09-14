@@ -5,6 +5,7 @@ import {
   IonButton,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -12,8 +13,12 @@ import {
   IonToast,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { logoGoogle } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../auth.service';
+
+addIcons({ 'logo-google': logoGoogle });
 
 /**
  * Minimum password length enforced client-side, purely to catch an
@@ -46,6 +51,7 @@ const MIN_PASSWORD_LENGTH = 8;
     IonLabel,
     IonInput,
     IonButton,
+    IonIcon,
     IonToast,
     TranslatePipe,
   ],
@@ -113,6 +119,11 @@ export class LoginPage {
         this.router.navigateByUrl('/feed');
       }
     });
+
+    // A no-op on native platforms; on Web, this is what actually completes
+    // a Google sign-in after the OAuth redirect brings the browser back to
+    // this page. See AuthService.completeGoogleSignInRedirect's doc comment.
+    this.authService.completeGoogleSignInRedirect();
   }
 
   onSubmit(): void {
@@ -124,6 +135,10 @@ export class LoginPage {
 
     const { email, password } = this.form.getRawValue();
     this.authService.signIn(email, password);
+  }
+
+  onContinueWithGoogle(): void {
+    this.authService.signInWithGoogle();
   }
 
   onToastDismiss(): void {

@@ -76,7 +76,7 @@ This document is the **complete specification** of the mobile client. It is mean
 | `@ngx-translate/core` | Internationalization | Loads translation JSON files and swaps the active language at runtime, without a full app rebuild per locale. |
 | `zod` | Runtime validation | Validates API responses at the HTTP boundary, so a malformed payload becomes a typed error instead of a silent `undefined`. |
 | `@capacitor/assets` | App icon/splash generation | Generates every platform-specific app icon and splash screen size from one source image, run as a one-off CLI step rather than a runtime dependency. |
-| `@capacitor-community/google-signin` | Social login (bonus) | Drives the native Google account picker and returns an ID token to exchange with the backend. |
+| `@capawesome/capacitor-google-sign-in` | Social login (bonus) | Drives the native Google account picker and returns an ID token to exchange with the backend. `@capacitor-community/google-signin`, this table's original name for this entry, was never actually published under that name; this is the real package, chosen over `@codetrix-studio/capacitor-google-auth` (the initial pick) once that one turned out to declare `@capacitor/core ^6.0.0`, incompatible with this project's Capacitor 8. |
 | `@capacitor/push-notifications` | Push notifications (bonus) | Registers the device for push (via FCM/APNs under the hood), receives the device push token, and delivers foreground/background messages. |
 | `@capacitor/local-notifications` | Local notification display (bonus) | Renders a system notification when a push message arrives while the app is in the foreground. |
 | Karma + Jasmine | Test runner | The Angular CLI's default unit/component test setup (`ng test`): Jasmine provides the assertion/spy API, Karma runs specs in a real browser. |
@@ -947,20 +947,20 @@ Optional integrations that are not required to complete the app, kept in their o
 ### Tasks
 
 **Sign in with Google**
-- [ ] Add `@capacitor-community/google-signin`, configure OAuth client ids for Android/iOS/Web
-- [ ] Build a "Continue with Google" button on `LoginPage`
-- [ ] Retrieve the Google ID token, send it to `POST /auth/google`
-- [ ] Handle the case where the email already exists under a password-based account (surface a clear error, do not silently merge)
-- [ ] Reuse the existing `AuthService` and token storage, no separate session model
-- [ ] Unit test: `AuthService.signInWithGoogle` maps a mocked API response to `User` the same way `signIn` does
+- [x] Add `@capawesome/capacitor-google-sign-in`, configure OAuth client ids for Android/iOS/Web
+- [x] Build a "Continue with Google" button on `LoginPage`
+- [x] Retrieve the Google ID token, send it to `POST /auth/google`
+- [x] Handle the case where the email already exists under a password-based account (surface a clear error, do not silently merge)
+- [x] Reuse the existing `AuthService` and token storage, no separate session model
+- [x] Unit test: `AuthService.signInWithGoogle` maps a mocked API response to `User` the same way `signIn` does
 
 **Push notifications**
-- [ ] Add `@capacitor/push-notifications` (backed by FCM/APNs, used here strictly for push delivery, not as a data backend)
-- [ ] Request notification permission, retrieve the device push token
-- [ ] Register the token with the backend via `POST /devices`, deregister on sign-out via `DELETE /devices/:pushToken`
-- [ ] Add `@capacitor/local-notifications` to display a system notification when a message arrives in the foreground
-- [ ] Handle a tap on a notification: deep-link into `PostDetailPage` via the Angular Router
-- [ ] Document that the backend is responsible for triggering the actual push send (e.g. on a new comment) through an FCM/APNs server-side client
+- [x] Add `@capacitor/push-notifications` (backed by FCM/APNs, used here strictly for push delivery, not as a data backend)
+- [x] Request notification permission, retrieve the device push token
+- [x] Register the token with the backend via `POST /devices`, deregister on sign-out via `DELETE /devices/:pushToken`
+- [x] Add `@capacitor/local-notifications` to display a system notification when a message arrives in the foreground
+- [x] Handle a tap on a notification: deep-link into `PostDetailPage` via the Angular Router
+- [x] Document that the backend is responsible for triggering the actual push send (e.g. on a new comment) through an FCM/APNs server-side client
 
 ---
 
