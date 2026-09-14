@@ -122,8 +122,10 @@ export class PushNotificationService {
   /**
    * Calls `DELETE /devices/:pushToken` for whatever token this device last
    * registered, then forgets it. A no-op if nothing was ever registered in
-   * this process (signed out before `'registration'` ever fired, or already
-   * signed out once before).
+   * this process: either sign-out beat `'registration'` to firing at all
+   * (in which case `handleTokenReceived` below skips registering it in the
+   * first place, so there is genuinely nothing to undo here), or the user
+   * was already signed out once before.
    *
    * Fire-and-forget like `AuthService.signOut()` itself: there is nothing
    * useful this method's caller (the `effect()` above) could do with a
@@ -139,6 +141,33 @@ export class PushNotificationService {
     }
     this.devices.deregisterDevice(token).subscribe({ error: () => undefined });
     this.registeredToken.set(null);
+  }
+
+  /**
+   * The `'registration'` listener's callback, extracted so a spec can call
+   * it directly without going through the plugin at all (its actual
+   * delivery path is unreachable from Karma either way, guarded behind
+   * `Capacitor.isNativePlatform()` further up in `setUpListeners`).
+   *
+   * `requestPermissions()`/`register()` above and this callback firing are
+   * two separate asynchronous steps with a real gap between them (the OS
+   * actually contacting FCM/APNs); a sign-out can land in that gap. Without
+   * checking `currentUser()` here, that race would register a token for an
+   * account nobody is signed into anymore: the `effect()`'s sign-out run
+   * already happened and found `registeredToken()` still `null` (this
+   * callback hadn't fired yet), so `deregisterFromPush()` correctly no-op'd
+   * having nothing to undo yet, and only *then* would this callback go on
+   * to register the token regardless, leaving it stuck registered with no
+   * further sign-out transition left to catch it. Checking here instead
+   * closes that gap: the token is simply never registered at all if nobody
+   * is signed in anymore by the time it arrives.
+   */
+  private handleTokenReceived(token: PushToken): void {
+    if (!this.auth.currentUser()) {
+      return;
+    }
+    this.registeredToken.set(token.value);
+    this.devices.registerDevice(token.value, this.currentPlatform()).subscribe({ error: () => undefined });
   }
 
   /**
@@ -174,12 +203,7 @@ export class PushNotificationService {
       return;
     }
 
-    onHandle(
-      await PushNotifications.addListener('registration', (token: PushToken) => {
-        this.registeredToken.set(token.value);
-        this.devices.registerDevice(token.value, this.currentPlatform()).subscribe({ error: () => undefined });
-      }),
-    );
+    onHandle(await PushNotifications.addListener('registration', (token: PushToken) => this.handleTokenReceived(token)));
 
     onHandle(
       await PushNotifications.addListener('registrationError', () => {
