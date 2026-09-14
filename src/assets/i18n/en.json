@@ -50,6 +50,11 @@
       "submitting": "Creating account…",
       "switchPrompt": "Already have an account?",
       "switchAction": "Sign in"
+    },
+    "google": {
+      "divider": "or",
+      "continue": "Continue with Google",
+      "signInFailed": "Google sign-in failed. Please try again."
     }
   },
   "feed": {
@@ -126,6 +131,10 @@
     "pick": "Take or choose a new avatar photo",
     "uploadProgress": "Uploading avatar, {{progress}} percent complete",
     "photoReadError": "Could not read the picked photo."
+  },
+  "notifications": {
+    "defaultTitle": "New activity",
+    "defaultBody": "Open the app to see what's new."
   },
   "timeAgo": {
     "justNow": "just now",

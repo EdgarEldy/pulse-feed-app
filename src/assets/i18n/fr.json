@@ -50,6 +50,11 @@
       "submitting": "Création du compte…",
       "switchPrompt": "Vous avez déjà un compte ?",
       "switchAction": "Se connecter"
+    },
+    "google": {
+      "divider": "ou",
+      "continue": "Continuer avec Google",
+      "signInFailed": "La connexion avec Google a échoué. Veuillez réessayer."
     }
   },
   "feed": {
@@ -126,6 +131,10 @@
     "pick": "Prendre ou choisir une nouvelle photo de profil",
     "uploadProgress": "Téléversement de l'avatar, {{progress}} pour cent terminé",
     "photoReadError": "Impossible de lire la photo sélectionnée."
+  },
+  "notifications": {
+    "defaultTitle": "Nouvelle activité",
+    "defaultBody": "Ouvrez l'application pour voir les nouveautés."
   },
   "timeAgo": {
     "justNow": "à l'instant",

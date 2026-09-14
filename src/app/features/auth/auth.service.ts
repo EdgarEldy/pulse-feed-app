@@ -1,6 +1,9 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, from, of, shareReplay, switchMap, throwError } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
+import { ErrorCode, GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../environments/environment';
 import { AppError } from '../../core/models/app-error';
 import { SecureTokenStorageService } from '../../core/storage/secure-token-storage.service';
 import { User } from '../users/user.model';
@@ -289,5 +292,132 @@ export class AuthService {
   private async persistSession(session: AuthSession): Promise<AuthSession> {
     await Promise.all([this.tokenStorage.setTokens(session.accessToken, session.refreshToken), this.tokenStorage.setUser(session.user)]);
     return session;
+  }
+
+  /**
+   * Memoized `GoogleSignIn.initialize()` call. The plugin documents this as
+   * needing to run exactly once "before all other methods", so this is
+   * called lazily, the first time either `signInWithGoogle()` or
+   * `completeGoogleSignInRedirect()` actually needs the plugin, rather than
+   * unconditionally in this service's constructor: `AuthService` is a
+   * `providedIn: 'root'` singleton constructed on every app boot (including
+   * for a session restored from storage that never touches Google sign-in
+   * at all), so initializing the native picker eagerly there would run
+   * native setup work for users who never tap the button. Memoizing the
+   * resulting promise (rather than calling `initialize()` again on every
+   * call) is what satisfies the "don't call redundantly" half of the same
+   * requirement.
+   */
+  private googleInitialization: Promise<void> | null = null;
+
+  private ensureGoogleSignInInitialized(): Promise<void> {
+    if (!this.googleInitialization) {
+      this.googleInitialization = GoogleSignIn.initialize({
+        clientId: environment.googleClientId,
+        // Only consulted on the Web implementation; native platforms ignore
+        // it. Redirects back to wherever the app is already being served
+        // from, since this tutorial has no dedicated OAuth landing route.
+        redirectUrl: Capacitor.getPlatform() === 'web' ? window.location.origin : undefined,
+      });
+    }
+    return this.googleInitialization;
+  }
+
+  /**
+   * Starts the native Google account picker (or, on Web, redirects to
+   * Google's OAuth page, see `completeGoogleSignInRedirect()` for how that
+   * side completes) and, once it returns an ID token, exchanges it for an
+   * app session via `POST /auth/google`, then does exactly what `signIn()`
+   * does with the result: persist tokens, set `currentUser`. `LoginPage`'s
+   * "Continue with Google" button is the only caller.
+   */
+  signInWithGoogle(): void {
+    this.state.set({ status: 'loading' });
+    from(this.ensureGoogleSignInInitialized())
+      .pipe(
+        switchMap(() => from(GoogleSignIn.signIn())),
+        switchMap((result) => this.api.google(result.idToken)),
+        switchMap((session) => this.persistSession(session)),
+      )
+      .subscribe({
+        next: (session) => {
+          this.currentUserSignal.set(session.user);
+          this.state.set({ status: 'success' });
+        },
+        error: (error: unknown) => this.handleGoogleSignInError(error),
+      });
+  }
+
+  /**
+   * Completes a Web OAuth redirect. `GoogleSignIn.signIn()`'s promise never
+   * resolves on Web, it navigates the browser away to Google and back; this
+   * is the call that actually retrieves the ID token once the app reloads
+   * on the receiving end of that redirect. A no-op on native platforms,
+   * where `signIn()` resolves directly and this path is never needed.
+   *
+   * Called once from `LoginPage`'s constructor, on every load of that page:
+   * on a normal (non-redirect) load, `handleRedirectCallback()` rejects
+   * because there is no OAuth response in the URL to parse, which is not a
+   * real error (the user did nothing wrong, there is nothing to explain),
+   * so that rejection is swallowed rather than surfaced through
+   * `authState`.
+   */
+  completeGoogleSignInRedirect(): void {
+    if (Capacitor.getPlatform() !== 'web') {
+      return;
+    }
+
+    from(this.ensureGoogleSignInInitialized())
+      .pipe(
+        switchMap(() => from(GoogleSignIn.handleRedirectCallback())),
+        switchMap((result) => this.api.google(result.idToken)),
+        switchMap((session) => this.persistSession(session)),
+      )
+      .subscribe({
+        next: (session) => {
+          this.currentUserSignal.set(session.user);
+          this.state.set({ status: 'success' });
+        },
+        error: () => {
+          // No pending redirect to complete, see the doc comment above.
+        },
+      });
+  }
+
+  /**
+   * `GoogleSignIn.signIn()` rejects with a plugin error carrying a `.code`
+   * (`ErrorCode.SignInCanceled` when the user simply backs out of the
+   * picker) rather than an `AppError`; `AuthApiService.google()` rejects
+   * with a real `AppError` instead, mapped by `BaseApiService` the exact
+   * same way `login`/`register` are, whatever the backend actually says
+   * (including a distinct message for "this email already has a
+   * password-based account", which needs no special handling beyond
+   * surfacing that message here like any other auth error). This tells the
+   * two apart and reacts accordingly: a cancellation quietly returns to
+   * `idle`, same treatment `RegisterPage`/`AvatarPickerComponent` give a
+   * cancelled native picker elsewhere in this app; anything else becomes a
+   * translated `AppError` the same `authState`-driven toast already shows.
+   */
+  private handleGoogleSignInError(error: unknown): void {
+    if (this.isGoogleSignInCanceled(error)) {
+      this.state.set({ status: 'idle' });
+      return;
+    }
+    this.state.set({ status: 'error', error: this.toGoogleSignInAppError(error) });
+  }
+
+  private isGoogleSignInCanceled(error: unknown): boolean {
+    return typeof error === 'object' && error !== null && 'code' in error && (error as { code: unknown }).code === ErrorCode.SignInCanceled;
+  }
+
+  private isAppError(error: unknown): error is AppError {
+    return typeof error === 'object' && error !== null && 'kind' in error;
+  }
+
+  private toGoogleSignInAppError(error: unknown): AppError {
+    if (this.isAppError(error)) {
+      return error;
+    }
+    return { kind: 'validation', message: this.translate.instant('auth.google.signInFailed') };
   }
 }
